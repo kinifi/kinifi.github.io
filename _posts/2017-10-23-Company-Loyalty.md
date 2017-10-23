@@ -1,7 +1,7 @@
----
-layout: post
-title: "Company Loyalty"
-date: 2017-10-23
----
+Company Loyalty
+==================
 
-Just some thoughts on working for a company and what that means to your identity as a professional and human.
+Just some thoughts here
+
+—————————-
+
