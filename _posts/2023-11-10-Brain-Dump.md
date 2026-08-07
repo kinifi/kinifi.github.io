@@ -1,5 +1,8 @@
-Brain Dump
-==================
+---
+layout: post
+title: "Brain Dump"
+date: 2023-11-10
+---
 
 Professionally a lot has happened. We successfully announced the Vision Pro which is a huge achievement and something so big I never thought I would accomplish. I moved across the country to be part of this project, my child is only 6 months older then the project itself, got a divorce, was homeless, and started life all over again with my daughter. 
 

@@ -1,3 +1,8 @@
-name: Christopher Figueroa, Game Developer
+name: Christopher Figueroa Braff, Game Developer
 markdown: kramdown
 permalink: /blog/:year/:month/:day/:title
+
+collections:
+  projects:
+    output: true
+    permalink: /projects/:name/

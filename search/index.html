@@ -1,0 +1,79 @@
+---
+layout: default
+title: Search — Christopher Figueroa Braff
+permalink: /search/
+---
+<h1>search</h1>
+
+<div class="box box--cyan">
+  <span class="tab">query</span>
+  <input type="text" id="search-input" class="search-box" placeholder="type to filter posts &amp; projects..." autocomplete="off">
+  <ul id="search-results"></ul>
+  <p class="search-empty" id="search-empty" style="display:none;">nothing found. try a different word.</p>
+</div>
+
+<script type="application/json" id="search-data">
+[
+  {% assign first = true %}
+  {% for post in site.posts %}
+  {% unless first %},{% endunless %}{% assign first = false %}
+  { "kind": "post", "title": {{ post.title | jsonify }}, "url": {{ post.url | jsonify }} }
+  {% endfor %}
+  {% assign sorted_projects = site.projects | sort: "order" %}
+  {% for project in sorted_projects %}
+  {% unless first %},{% endunless %}{% assign first = false %}
+  { "kind": "project", "title": {{ project.title | jsonify }}, "url": {{ project.url | jsonify }} }
+  {% endfor %}
+]
+</script>
+
+<script>
+(function () {
+  var entries = JSON.parse(document.getElementById('search-data').textContent);
+
+  var pages = [
+    { kind: 'page', title: 'Home', url: '/' },
+    { kind: 'page', title: 'Projects', url: '/projects' },
+    { kind: 'page', title: 'Blog', url: '/blog' },
+    { kind: 'page', title: 'Contact', url: '/contact' },
+    { kind: 'page', title: 'CV / Resume', url: '/cv' }
+  ];
+
+  var index = pages.concat(entries);
+
+  var input = document.getElementById('search-input');
+  var results = document.getElementById('search-results');
+  var empty = document.getElementById('search-empty');
+
+  function render(items) {
+    results.innerHTML = '';
+    empty.style.display = items.length ? 'none' : 'block';
+    items.forEach(function (item) {
+      var li = document.createElement('li');
+      var kind = document.createElement('span');
+      kind.className = 'kind';
+      kind.textContent = item.kind;
+      var a = document.createElement('a');
+      a.href = item.url;
+      a.textContent = item.title;
+      if (/^https?:\/\//.test(item.url)) {
+        a.target = '_blank';
+        a.rel = 'noopener';
+      }
+      li.appendChild(kind);
+      li.appendChild(a);
+      results.appendChild(li);
+    });
+  }
+
+  input.addEventListener('input', function () {
+    var q = input.value.trim().toLowerCase();
+    if (!q) { render([]); return; }
+    render(index.filter(function (item) {
+      return item.title.toLowerCase().indexOf(q) !== -1;
+    }));
+  });
+
+  input.focus();
+})();
+</script>

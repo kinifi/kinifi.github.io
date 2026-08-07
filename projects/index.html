@@ -1,69 +1,18 @@
 ---
 layout: default
-title: Christopher Figueroa
+title: Projects — Christopher Figueroa Braff
 ---
+<h1>projects</h1>
 
-	<div class="cv">
-		<p>Current Project at Apple </p>
-		<ul class="contacts">
-			<li><a href="#">ARKit - Game Engine Specialist</a></li>
-			<li><a href="#">Unity Wrapper</a></li>
-			<li><a href="#">Unreal Wrapper</a></li>
-		</ul>
-		<p>Previous Projects At Unity: </p>
-		<ul class="contacts">
-			<li><a href="#">Xbox One Exporter and Xbox One Plugins</a></li>
-			<li><a href="#">Unity Runtime Localization Tool</a></li>
-			<li><a href="#">First VR Testing for Oculus/HTC Vive</a></li>
-		</ul>
-		<p>Published/Credited Games: </p>
-		<ul class="contacts">
-			<li><a href="#">NASCAR 2011: The Game</a></li>
-			<li><a href="#">Transformers: Dark of the Moon</a></li>
-			<li><a href="#">X-Men: Destiny</a></li>
-			<li><a href="#">Cabela's Big Game Hunter 2012</a></li>
-			<li><a href="#">Spider-Man: Edge of Time</a></li>
-			<li><a href="#">Wipeout 2</a></li>
-			<li><a href="#">Goldeneye 007: Reloaded</a></li>
-			<li><a href="#">Cabela's Adventure Camp</a></li>
-			<li><a href="#">Cabela's Survival: Shadows of Katmai</a></li>
-			<li><a href="#">Cabela's Big Game Hunter: Hunting Party</a></li>
-			<li><a href="#">NASCAR: Unleashed</a></li>
-			<li><a href="#">Generator Rex: Agent of Providence</a></li>
-			<li><a href="#">Big League Sports</a></li>
-			<li><a href="#">Rapala for Kinect</a></li>
-			<li><a href="#">Dreamworks Super Star Karts</a></li>
-			<li><a href="#">Prototype 2</a></li>
-			<li><a href="#">Battleship: The Video Game</a></li>
-			<li><a href="#">Men In Black: Alien Crisis</a></li>
-			<li><a href="#">The Amazing Spider-Man</a></li>
-			<li><a href="#">Ice Age: Continental Drift - Arctic Games</a></li>
-			<li><a href="#">Tony Hawk's Pro Skater HD</a></li>
-			<li><a href="#">Transformers: Fall of Cybertron</a></li>
-			<li><a href="#">Angry Birds Trilogy</a></li>
-			<li><a href="#">Wipeout 3</a></li>
-			<li><a href="#">007 Legends</a></li>
-			<li><a href="#">Cabela's Hunting Expeditions</a></li>
-			<li><a href="#">Cabela's Dangerous Hunts 2013</a></li>
-			<li><a href="#">Nascar the Game: Inside Line</a></li>
-			<li><a href="#">Family Guy: Back to the Multiverse</a></li>
-			<li><a href="#">And much more.. I just couldn't list them all :)</a></li>
-		</ul>
-		<p>Open Source Projects: </p>
-		<ul class="contacts">
-			<li><a href="https://github.com/kinifi/Unity-FPS-Controller">FPS Controller - Replaces Unity's Bulky FPS Controller from Standard Assets</a></li>
-			<li><a href="https://github.com/kinifi/Steamworks-Multiplayer-Example">Steamworks SDK Multiplayer Example</a></li>
-			<li><a href="https://github.com/kinifi/unity-extension-boilerplate">Unity Extension Boilerplate</a></li>
-			<li><a href="https://github.com/kinifi/Unity-Runtime-Debugger">Unity Runtime Debugger</a></li>
-			<li><a href="https://github.com/kinifi/SteamJS">SteamJS - Crop, Create, and Resize Badges, Trading Cards, and more for your Steam Game</a></li>
-			<li><a href="https://github.com/kinifi/Unity-Runtime-Debugger">Unity Runtime Debugger</a></li>
-			<li><a href="https://github.com/kinifi/FlatColorUI">Flat Color UI - Creates Materials with a Flat Color Library in the Unity Editor</a></li>
-			<li><a href="https://github.com/kinifi/gpm">Game Dev Specific Package Manager - INPROGRESS</a></li>
-			<li><a href="https://github.com/kinifi/discord-bot">Discord Bot - A Text Adventure RPG in Discord</a></li>
-			<li><a href="https://github.com/kinifi/localization-tool">Unity Localization Tool. -Discontinued-</a></li>
-			<li><a href="https://github.com/kinifi/2Dtools">2D Tools - Unity sprite animator without Mecanim or Animation types</a></li>
-			<li><a href="https://github.com/kinifi/UnityAndCoffee">Unity & Coffee - Download new C# puzzles each morning</a></li>
-			<li><a href="https://github.com/kinifi/Unity3D-Auto-Save">Unity Auto Save - Auto Saves the current Unity scene</a></li>
-			<li><a href="https://github.com/kinifi/Unity_Kongregate">Unity Kongregate - Interact with the Kongregate SDK in Unity HTML5 Games</a></li>
-		</ul>
-	</div>
+<h2>open source</h2>
+<p class="meta">Each of these is its own little write-up — click through to read more.</p>
+<div class="grid">
+  {% assign sorted_projects = site.projects | sort: "order" %}
+  {% for project in sorted_projects %}
+  <div class="box box--{{ project.color | default: 'green' }}">
+    <span class="tab">{{ project.tag }}</span>
+    <p><a href="{{ project.url }}">{{ project.title }}</a></p>
+    <p class="meta">{{ project.content | strip_html | strip }}</p>
+  </div>
+  {% endfor %}
+</div>
