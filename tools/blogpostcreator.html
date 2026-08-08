@@ -63,6 +63,15 @@
     cursor: pointer;
   }
   button:hover { background: #39ff6a; color: #001a06; }
+  .connect-status { font-size: 0.78rem; color: #6f9c7a; white-space: nowrap; }
+  .connect-status.connected { color: #39ff6a; }
+  .connect-hint { font-size: 0.75rem; color: #6f9c7a; }
+  .connect-hint code {
+    background: #0d1a0d;
+    color: #d7f7de;
+    padding: 1px 4px;
+    font-family: inherit;
+  }
   .toolbar {
     display: flex;
     gap: 6px;
@@ -126,7 +135,11 @@
       </select>
     </label>
     <label>title <input type="text" id="title" placeholder="Post Title"></label>
+    <button id="openBtn" type="button">open post/project</button>
     <button id="createBtn">create post</button>
+    <button id="connectBtn" type="button">connect repo folder</button>
+    <span class="connect-hint">select the <code>kinifi.github.io</code> folder itself — not <code>_posts</code> or <code>_projects</code></span>
+    <span id="connectStatus" class="connect-status">not connected</span>
   </header>
   <div class="meta-row">
     <label class="field-post">date <input type="date" id="date"></label>
@@ -309,36 +322,78 @@ function insertAtCursor(text) {
   update();
 }
 
-// images live in assets/img/ (shared across all posts), not next to the
-// post file — this copies the picked file there and inserts the right path
+// Everything the tool writes (posts, projects, images) goes into the same
+// repo checkout. "connect repo folder" is the ONE place that ever calls
+// showDirectoryPicker — every other action just uses the cached handle,
+// so no action ever has to chain two native dialogs in one click (Chrome
+// silently kills the 2nd dialog once the click's "user activation" expires,
+// which is why an earlier version of this tool could silently fail).
+var siteRootHandle = null;
+var connectBtn = document.getElementById('connectBtn');
+var connectStatus = document.getElementById('connectStatus');
+
+async function connectRepo() {
+  try {
+    siteRootHandle = await window.showDirectoryPicker({ id: 'kinifi-site-root', startIn: 'documents' });
+    connectStatus.textContent = 'connected: ' + siteRootHandle.name;
+    connectStatus.classList.add('connected');
+    status.textContent = 'connected to ' + siteRootHandle.name + ' — create post / insert image will now save automatically.';
+  } catch (err) {
+    if (err.name !== 'AbortError') status.textContent = 'could not connect: ' + err.message;
+  }
+}
+connectBtn.addEventListener('click', connectRepo);
+
+async function getSubDir(root, path) {
+  var dir = root;
+  var parts = path.split('/').filter(function (p) { return p.length > 0; });
+  for (var i = 0; i < parts.length; i++) {
+    dir = await dir.getDirectoryHandle(parts[i], { create: true });
+  }
+  return dir;
+}
+
 async function insertImage() {
-  if (!window.showOpenFilePicker) {
+  if (!window.showOpenFilePicker || !window.showDirectoryPicker) {
     var name = prompt('Image filename (you\'ll need to add it to assets/img/ yourself):', 'photo.png');
     if (name) insertAtCursor('![](/assets/img/' + name + ')');
     return;
   }
+
+  if (!siteRootHandle) {
+    alert('Click "connect repo folder" first (top right), then try inserting the image again.');
+    return;
+  }
+
+  var dir;
+  try {
+    dir = await getSubDir(siteRootHandle, 'assets/img');
+  } catch (err) {
+    status.textContent = 'could not open assets/img/: ' + err.message;
+    return;
+  }
+
   var picked;
   try {
     picked = await window.showOpenFilePicker({
       types: [{ description: 'Images', accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp'] } }]
     });
   } catch (err) {
-    return; // user cancelled
+    return; // user cancelled picking the source image
   }
   var file = await picked[0].getFile();
   var alt = prompt('Alt text for this image:', file.name.replace(/\.[^.]+$/, '')) || '';
 
   try {
-    var saveHandle = await window.showSaveFilePicker({ suggestedName: file.name });
-    var writable = await saveHandle.createWritable();
+    var targetHandle = await dir.getFileHandle(file.name, { create: true });
+    var writable = await targetHandle.createWritable();
     await writable.write(await file.arrayBuffer());
     await writable.close();
-    status.textContent = 'saved a copy of ' + file.name + ' — make sure it landed in assets/img/';
+    status.textContent = 'saved ' + file.name + ' to assets/img/';
+    insertAtCursor('![' + alt + '](/assets/img/' + file.name + ')');
   } catch (err) {
-    if (err.name !== 'AbortError') status.textContent = 'could not save image copy: ' + err.message;
+    status.textContent = 'could not save image: ' + err.message + ' — not inserting a link.';
   }
-
-  insertAtCursor('![' + alt + '](/assets/img/' + file.name + ')');
 }
 
 function insertBlock(text) {
@@ -379,6 +434,62 @@ function slugify(s) {
   return s.trim().replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
+// ---- open an existing post/project back into the tool for editing ----
+function parseFrontMatter(text) {
+  var m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  if (!m) return { data: {}, body: text };
+
+  var data = {};
+  m[1].split(/\r?\n/).forEach(function (line) {
+    var kv = line.match(/^(\w+):\s*(.*)$/);
+    if (!kv) return;
+    var val = kv[2].trim();
+    if (/^".*"$/.test(val)) val = val.slice(1, -1).replace(/\\"/g, '"');
+    data[kv[1]] = val;
+  });
+
+  return { data: data, body: m[2].replace(/^\r?\n/, '') };
+}
+
+async function openPost() {
+  if (!window.showOpenFilePicker) {
+    status.textContent = 'this browser can\'t open files directly — try Chrome or Edge.';
+    return;
+  }
+  var picked;
+  try {
+    picked = await window.showOpenFilePicker({
+      types: [{ description: 'Markdown', accept: { 'text/markdown': ['.md'] } }]
+    });
+  } catch (err) {
+    return; // user cancelled
+  }
+
+  var handle = picked[0];
+  var file = await handle.getFile();
+  var parsed = parseFrontMatter(await file.text());
+  var data = parsed.data;
+
+  titleInput.value = data.title || '';
+
+  if (data.layout === 'project') {
+    postType.value = 'project';
+    tagInput.value = data.tag || '';
+    colorInput.value = data.color || 'green';
+    orderInput.value = data.order || '';
+    githubInput.value = data.github || '';
+  } else {
+    postType.value = 'post';
+    dateInput.value = data.date || new Date().toISOString().slice(0, 10);
+  }
+  applyTypeVisibility();
+
+  editor.value = parsed.body.replace(/\n+$/, '');
+  update();
+
+  status.textContent = 'opened ' + handle.name + ' — "create post" will overwrite it unless you change the title.';
+}
+
 async function createPost() {
   var title = titleInput.value.trim();
   if (!title) {
@@ -411,15 +522,26 @@ async function createPost() {
 
   var content = frontMatter + editor.value + '\n';
 
-  if (window.showSaveFilePicker) {
+  if (window.showDirectoryPicker && siteRootHandle) {
     try {
-      var handle = await window.showSaveFilePicker({
-        suggestedName: filename,
-        types: [{ description: 'Markdown', accept: { 'text/markdown': ['.md'] } }]
-      });
+      var dir = await getSubDir(siteRootHandle, targetDir);
+      var handle = await dir.getFileHandle(filename, { create: true });
       var writable = await handle.createWritable();
       await writable.write(content);
       await writable.close();
+      status.textContent = 'saved ' + targetDir + filename;
+    } catch (err) {
+      status.textContent = 'error: ' + err.message;
+    }
+  } else if (window.showSaveFilePicker) {
+    try {
+      var handle2 = await window.showSaveFilePicker({
+        suggestedName: filename,
+        types: [{ description: 'Markdown', accept: { 'text/markdown': ['.md'] } }]
+      });
+      var writable2 = await handle2.createWritable();
+      await writable2.write(content);
+      await writable2.close();
       status.textContent = 'saved ' + filename + ' — make sure it landed in ' + targetDir;
     } catch (err) {
       if (err.name !== 'AbortError') status.textContent = 'error: ' + err.message;
@@ -437,6 +559,7 @@ async function createPost() {
 }
 
 document.getElementById('createBtn').addEventListener('click', createPost);
+document.getElementById('openBtn').addEventListener('click', openPost);
 </script>
 </body>
 </html>
