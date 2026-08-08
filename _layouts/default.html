@@ -32,6 +32,7 @@
 
   <div class="below-border">
     <p class="below-border-text">the world behind the content grows a little every 10 minutes, tracked from your first visit — it never resets. type a seed to grow your own.</p>
+    <p class="below-border-text" id="world-summary"></p>
     <div class="world-controls">
       <input type="text" id="seed-input" class="seed-input" placeholder="seed..." autocomplete="off" spellcheck="false">
       <button type="button" id="btn-create-world" class="below-border-btn">[ create world ]</button>
@@ -39,6 +40,7 @@
       <button type="button" id="btn-planet" class="below-border-btn">[ planet ]</button>
       {% if page.url == "/" %}
       <button type="button" id="toggle-info" class="below-border-btn">[ hide information ]</button>
+      <button type="button" id="save-png" class="below-border-btn">[ save png ]</button>
       {% endif %}
     </div>
   </div>
@@ -86,6 +88,7 @@
     var btnCreateWorld = document.getElementById('btn-create-world');
     var btnWorld = document.getElementById('btn-world');
     var btnPlanet = document.getElementById('btn-planet');
+    var summaryEl = document.getElementById('world-summary');
 
     var SEED_KEY = 'kinifi-world-seed';
     var START_KEY = 'kinifi-world-start';
@@ -324,11 +327,99 @@
       return lines.join('\n');
     }
 
+    // ---- description: summarizes the current seed's world & planet ------
+
+    function computeWorldStats(rand) {
+      var maxLevel = Math.max(6, Math.floor((window.innerHeight * 0.4) / 14));
+      var level = growthLevel(maxLevel);
+      var counts = { tree: 0, flower: 0, person: 0, house: 0 };
+
+      for (var i = 0; i < 40; i++) {
+        var roll = rand();
+        var type = roll < 0.3 ? 'tree' : roll < 0.5 ? 'flower' : roll < 0.62 ? 'person' : 'house';
+        rand(); // height offset draw, kept in sync with renderWorld
+        counts[type]++;
+        if (type === 'house' && level > maxLevel * 0.5 && rand() < 0.35) {
+          counts.house++; // second house on the same lot
+        }
+      }
+      return { level: level, maxLevel: maxLevel, counts: counts };
+    }
+
+    function computePlanetStats(rand) {
+      var maxLevel = 16;
+      var level = growthLevel(maxLevel);
+      var radius = 3 + level;
+      rand(); // noiseSeed draw, kept in sync with renderPlanet
+
+      var landCount = 3 + Math.floor(rand() * 4);
+      var lands = [];
+      for (var i = 0; i < landCount; i++) {
+        var a = rand() * Math.PI * 2;
+        var d = rand() * radius * 0.65;
+        lands.push({ x: Math.cos(a) * d, y: Math.sin(a) * d, r: radius * (0.22 + rand() * 0.28) });
+      }
+
+      var land = 0, total = 0;
+      for (var y = -radius; y <= radius; y++) {
+        for (var x = -radius * 2; x <= radius * 2; x++) {
+          var nx = x / 2;
+          var dist = Math.sqrt(nx * nx + y * y);
+          if (dist > radius) continue;
+          if (radius - dist < 0.5) continue;
+          total++;
+          for (var li = 0; li < lands.length; li++) {
+            var L = lands[li], dx = nx - L.x, dy = y - L.y;
+            if (Math.sqrt(dx * dx + dy * dy) < L.r) { land++; break; }
+          }
+        }
+      }
+      var landPct = total ? Math.round((100 * land) / total) : 0;
+      var moonCount = Math.floor(rand() * 5);
+
+      return { level: level, maxLevel: maxLevel, landPct: landPct, moonCount: moonCount };
+    }
+
+    function terrainDescriptor(pct) {
+      if (pct < 25) return 'mostly water with a few scattered islands';
+      if (pct < 45) return 'lots of water and some greenery';
+      if (pct < 60) return 'a balanced mix of land and sea';
+      if (pct < 80) return 'mostly land with a few lakes';
+      return 'vast continents and very little open water';
+    }
+
+    function growthDescriptor(level, maxLevel) {
+      var ratio = level / maxLevel;
+      if (ratio < 0.15) return 'the trees are just sprouting';
+      if (ratio < 0.4) return 'the trees are growing steadily';
+      if (ratio < 0.75) return 'the trees are getting tall';
+      return 'trees that grow tall';
+    }
+
+    function plural(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
+
+    function updateSummary() {
+      if (!summaryEl) return;
+      var planetStats = computePlanetStats(mulberry32(hashSeed(seed)));
+      var worldStats = computeWorldStats(mulberry32(hashSeed(seed)));
+      var c = worldStats.counts;
+
+      var name = 'Planet ' + seed.charAt(0).toUpperCase() + seed.slice(1);
+      var moons = planetStats.moonCount === 0 ? 'no moons' : plural(planetStats.moonCount, 'moon');
+      var growth = growthDescriptor(worldStats.level, worldStats.maxLevel);
+      var growthText = growth.charAt(0).toUpperCase() + growth.slice(1);
+
+      summaryEl.textContent = name + '. ' + moons + '. ' + terrainDescriptor(planetStats.landPct) + '. ' +
+        plural(c.person, 'human') + ', ' + plural(c.house, 'building') + ', ' +
+        plural(c.tree, 'tree') + ', ' + plural(c.flower, 'flower') + '. ' + growthText + '.';
+    }
+
     function render() {
       var rand = mulberry32(hashSeed(seed));
       updateModeButtons();
       if (mode === 'planet') renderPlanet(rand);
       else renderWorld(rand);
+      updateSummary();
     }
 
     render();
@@ -455,6 +546,73 @@
       var hidden = grid.style.visibility === 'hidden';
       grid.style.visibility = hidden ? '' : 'hidden';
       btn.textContent = hidden ? '[ hide information ]' : '[ show information ]';
+    });
+  })();
+  </script>
+
+  <script>
+  (function () {
+    var saveBtn = document.getElementById('save-png');
+    var grid = document.getElementById('content-grid');
+    var infoBtn = document.getElementById('toggle-info');
+    if (!saveBtn) return;
+
+    function nextFrame() {
+      return new Promise(function (resolve) {
+        requestAnimationFrame(function () { requestAnimationFrame(resolve); });
+      });
+    }
+
+    saveBtn.addEventListener('click', async function () {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+        alert('Your browser doesn\'t support saving a screenshot this way — try Chrome or Edge.');
+        return;
+      }
+
+      var wasVisible = !grid || grid.style.visibility !== 'hidden';
+      if (grid && wasVisible) {
+        grid.style.visibility = 'hidden';
+        if (infoBtn) infoBtn.textContent = '[ show information ]';
+      }
+      await nextFrame();
+
+      var stream;
+      try {
+        stream = await navigator.mediaDevices.getDisplayMedia({
+          video: { displaySurface: 'browser' },
+          preferCurrentTab: true
+        });
+
+        var video = document.createElement('video');
+        video.srcObject = stream;
+        await video.play();
+        await new Promise(function (resolve) {
+          if (video.requestVideoFrameCallback) video.requestVideoFrameCallback(resolve);
+          else setTimeout(resolve, 200);
+        });
+
+        var canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+
+        canvas.toBlob(function (blob) {
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'kinifi-world-' + Date.now() + '.png';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        }, 'image/png');
+      } catch (err) {
+        if (err.name !== 'NotAllowedError') alert('Could not save PNG: ' + err.message);
+      } finally {
+        if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
+        if (grid && wasVisible) {
+          grid.style.visibility = '';
+          if (infoBtn) infoBtn.textContent = '[ hide information ]';
+        }
+      }
     });
   })();
   </script>

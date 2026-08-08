@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Blog Post Creator</title>
+<title>Post Creator</title>
 <style>
   :root { color-scheme: dark; }
   * { box-sizing: border-box; }
@@ -33,6 +33,26 @@
     padding: 5px 8px;
   }
   #title { flex: 1; min-width: 200px; }
+  select {
+    background: #050e08;
+    border: 1px solid #1f8f43;
+    color: #d7f7de;
+    font-family: inherit;
+    font-size: 0.85rem;
+    padding: 5px 8px;
+  }
+  .meta-row {
+    display: flex;
+    gap: 16px;
+    padding: 8px 20px;
+    border-bottom: 1px solid #1f8f43;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  body.type-post .field-project { display: none; }
+  body.type-project .field-post { display: none; }
+  #order { width: 50px; }
+  #github { min-width: 240px; }
   button {
     font-family: inherit;
     font-size: 0.85rem;
@@ -98,11 +118,33 @@
 </head>
 <body>
   <header>
-    <h1>blog post creator</h1>
+    <h1>post creator</h1>
+    <label>type
+      <select id="postType">
+        <option value="post">blog post</option>
+        <option value="project">project post</option>
+      </select>
+    </label>
     <label>title <input type="text" id="title" placeholder="Post Title"></label>
-    <label>date <input type="date" id="date"></label>
     <button id="createBtn">create post</button>
   </header>
+  <div class="meta-row">
+    <label class="field-post">date <input type="date" id="date"></label>
+    <label class="field-project">tag <input type="text" id="tag" placeholder="unity"></label>
+    <label class="field-project">
+      color
+      <select id="color">
+        <option>green</option>
+        <option>pink</option>
+        <option>yellow</option>
+        <option>orange</option>
+        <option>purple</option>
+        <option>cyan</option>
+      </select>
+    </label>
+    <label class="field-project">order <input type="text" id="order" placeholder="14"></label>
+    <label class="field-project">github <input type="text" id="github" placeholder="https://github.com/kinifi/..."></label>
+  </div>
   <div class="toolbar">
     <button type="button" data-action="h1">H1</button>
     <button type="button" data-action="h2">H2</button>
@@ -203,10 +245,19 @@ var editor = document.getElementById('editor');
 var preview = document.getElementById('preview');
 var titleInput = document.getElementById('title');
 var dateInput = document.getElementById('date');
+var postType = document.getElementById('postType');
+var tagInput = document.getElementById('tag');
+var colorInput = document.getElementById('color');
+var orderInput = document.getElementById('order');
+var githubInput = document.getElementById('github');
 var status = document.getElementById('status');
 
 function update() { preview.innerHTML = renderMarkdown(editor.value); }
 editor.addEventListener('input', update);
+
+function applyTypeVisibility() { document.body.className = 'type-' + postType.value; }
+postType.addEventListener('change', applyTypeVisibility);
+applyTypeVisibility();
 
 dateInput.value = new Date().toISOString().slice(0, 10);
 update();
@@ -335,11 +386,29 @@ async function createPost() {
     titleInput.focus();
     return;
   }
-  var date = dateInput.value || new Date().toISOString().slice(0, 10);
   var slug = slugify(title);
-  var filename = date + '-' + slug + '.md';
+  var type = postType.value;
+  var filename, frontMatter, targetDir;
 
-  var frontMatter = '---\nlayout: post\ntitle: "' + title.replace(/"/g, '\\"') + '"\ndate: ' + date + '\n---\n\n';
+  if (type === 'project') {
+    var tag = tagInput.value.trim() || 'misc';
+    var color = colorInput.value;
+    var order = orderInput.value.trim();
+    var github = githubInput.value.trim();
+
+    filename = slug.toLowerCase() + '.md';
+    targetDir = '_projects/';
+    frontMatter = '---\nlayout: project\ntitle: "' + title.replace(/"/g, '\\"') + '"\ntag: ' + tag + '\ncolor: ' + color + '\n' +
+      (github ? 'github: ' + github + '\n' : '') +
+      (order ? 'order: ' + order + '\n' : '') +
+      '---\n\n';
+  } else {
+    var date = dateInput.value || new Date().toISOString().slice(0, 10);
+    filename = date + '-' + slug + '.md';
+    targetDir = '_posts/';
+    frontMatter = '---\nlayout: post\ntitle: "' + title.replace(/"/g, '\\"') + '"\ndate: ' + date + '\n---\n\n';
+  }
+
   var content = frontMatter + editor.value + '\n';
 
   if (window.showSaveFilePicker) {
@@ -351,7 +420,7 @@ async function createPost() {
       var writable = await handle.createWritable();
       await writable.write(content);
       await writable.close();
-      status.textContent = 'saved ' + filename;
+      status.textContent = 'saved ' + filename + ' — make sure it landed in ' + targetDir;
     } catch (err) {
       if (err.name !== 'AbortError') status.textContent = 'error: ' + err.message;
     }
@@ -363,7 +432,7 @@ async function createPost() {
     document.body.appendChild(a);
     a.click();
     a.remove();
-    status.textContent = 'downloaded ' + filename + ' — this browser can\'t choose a folder, move it into _posts/ yourself.';
+    status.textContent = 'downloaded ' + filename + ' — this browser can\'t choose a folder, move it into ' + targetDir + ' yourself.';
   }
 }
 
