@@ -9,7 +9,6 @@ save dialog (Chrome/Edge only). In other browsers it falls back to a plain
 download and you'll need to move the file into _posts/ yourself.
 """
 import http.server
-import socketserver
 import webbrowser
 import os
 import sys
@@ -27,10 +26,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 
 def start_server():
+    # ThreadingHTTPServer, not the plain single-threaded TCPServer: a browser
+    # tab holding a keep-alive connection open would otherwise block every
+    # other request (including the browser's own subsequent ones) until that
+    # connection closes.
     port = PORT
     while port < PORT + 50:
         try:
-            return socketserver.TCPServer(("localhost", port), Handler), port
+            return http.server.ThreadingHTTPServer(("localhost", port), Handler), port
         except OSError:
             port += 1
     raise RuntimeError("Could not find a free port")
