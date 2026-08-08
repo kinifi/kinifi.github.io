@@ -25,4 +25,10 @@ Some may notice that their picture is not included. Thats because the Nerdery wo
 
 One thing that didn't survive: clicking a person in the photo grid. That feature calls a JSON API endpoint per-person, and archive.org's crawler only ever captured those URLs as redirects, not the actual JSON responses — so the interactive detail view was already broken in the original snapshot, not something lost in this process.
 
+### Special Thanks
+
+Archive.org is an amazing service that saved lots of nerdery-people webpages. This would not exist if it wasn't for the great people working there and crawling the internet at this time. 
+
+
+
 [View the archived employee wall](/assets/archives/nerdery-people/index.html)
