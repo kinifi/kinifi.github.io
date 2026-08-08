@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title>Meet the Nerds | The Nerdery</title>
+    <meta name="description" content="A Custom Software Design and Development Company."/>
+	<link rel="shortcut icon" type="skin/ico" href="assets/favicon-7308ae5da56141fc967d724e1f28d982.ico"/>
+	<link rel="apple-touch-icon" href="assets/apple-touch-icon-b2ba427a0a82392651bddb3631d8bb82.png"/>
+	<meta content="authenticity_token" name="csrf-param"/>
+<meta content="daDmqz/IJm5y982ey+wIekDTD1OOOVtINAnYkesQBGw=" name="csrf-token"/>
+	<link href="assets/application-06e05aef703568c3ea21ab9ec8ab7e76.css" media="screen" rel="stylesheet" type="text/css"/>
+	<script src="assets/application-ef7ce35352112a8bddaae3c3ff0cfdd4.js" type="text/javascript"></script>
+	<script src="assets/historyadapterjquery-3ef13c3f32bab5e2449275a68381ea98.js" type="text/javascript"></script><script src="assets/history-055191e2b0f48fcf29719d84675b53e7.js" type="text/javascript"></script><script src="assets/searchbox-41fecaf3ecba335f4cbbb58b340b3c0e.js" type="text/javascript"></script><link href="assets/nerds.css" media="screen" rel="stylesheet" type="text/css"/>    <script>
+
+        $(function () {
+            if (window.location.hash) {
+                loadPerson(window.location.hash.replace(/^#/, ''));
+            }
+            if ("onhashchange" in window) {
+                $(window).bind('hashchange', function (e) {
+                    var person_symbol = window.location.hash.replace(/^#/, '');
+                    if(person_symbol){
+                        loadPerson(person_symbol);
+                    } else {
+                        resetPeopleBrowser();
+                    }
+
+                });
+            }
+        });
+
+        $(function(){
+            $('#search_form').submit(function(e){
+                e.preventDefault();
+            });
+        });
+        function navigateToPerson(person) {
+            if ("onhashchange" in window) {
+                window.location.hash = person
+            } else {
+                loadPerson(person);
+            }
+        }
+        function resetPeopleBrowser() {
+            if ($('body').data('index-content')) {
+                // Animate out person detail
+                $('#portrait').hide('fade', 'slow');
+                // Reactive controls
+                deactivateMatte();
+                // Animate out matte
+                $('#content').html($('body').data('index-content'));
+                // Remove active class on current nerd
+                $('.nerds-sprite.active').removeClass("active");
+                $('body').removeClass("show");
+                $('body').addClass("index");
+                window.location.hash = "";
+            } else {
+                window.location = "/people";
+            }
+        }
+
+        function loadPerson(person_symbol) {
+            // Call new person data via ajax
+            var target_url = $(".nerds-" + person_symbol.toLowerCase()).hasClass("search") ? "/people/" + person_symbol + "?" + $("#search_form").serialize() : "/people/" + person_symbol
+            $.ajax({
+                dataType: "json",
+                url: target_url,
+                success: function (data, textStatus, jqXHR) {
+                    // Highlight active nerd
+                    $('.nerds-sprite.active').removeClass("active");
+                    $(".nerds-" + person_symbol.toLowerCase()).addClass("active");
+                    // Animate in person portrait
+                    $('#portrait').hide();
+                    $('#portrait').html(data.portrait);
+                    activateMatte();
+                    $('#portrait').show('fade', 'slow');
+                    // Swap people detail for person detail
+                    if (!$('body').data('index-content')) {
+                        $('body').data('index-content', $('#content').html());
+                    }
+                    $('body').removeClass("index");
+                    $('body').addClass("show");
+                    $('#content').html(data.details);
+                }
+            });
+        }
+
+        function activateMatte() {
+            $('#matte').show('fade', 'slow');
+            $('#filter').addClass("disabled");
+        }
+
+        function deactivateMatte() {
+            $('#matte').hide('fade', 'slow');
+            $('#filter').removeClass("disabled");
+        }
+
+
+        $(function () {
+
+            //Activate nerd sprites
+            $("a.nerds-sprite").click(function (event) {
+                event.preventDefault();
+                // Update page hash
+                navigateToPerson($(event.currentTarget).text());
+            });
+
+            //Setup search box
+            $('#people_search').searchbox({
+                url: '/people',
+                param: 'search',
+                data_type: 'script'
+            });
+
+            //Setup mouseover filters
+            $("#filter a").mouseover(function (event) {
+                $('.' + event.currentTarget.rel).addClass('tag');
+            });
+            $("#filter a").mouseout(function (event) {
+                $('.' + event.currentTarget.rel).removeClass('tag');
+            });
+            $("#filter a").click(function (event) {
+                if ($(this).hasClass("active")) {
+                    $("#filter a").removeClass("active");
+                    $("#department_field").val("");
+                    $.ajax({
+                        type: "GET",
+                        url: '/people',
+                        data: $("#search_form").serialize(),
+                        dataType: 'script'
+                    });
+
+                } else {
+                    $("#filter a").removeClass("active");
+                    $(this).addClass("active");
+                    $("#department_field").val(event.currentTarget.rel);
+                    $.ajax({
+                        type: "GET",
+                        url: '/people',
+                        data: $("#search_form").serialize(),
+                        dataType: 'script',
+                        success: function () {
+                            navigateToPerson($("a.search:first").attr("rel"))
+                        }
+                    });
+                }
+                event.preventDefault();
+            });
+
+            //Fade out Intro on first mouseover
+            $("#people_browser").mouseover(function () {
+                $('#intro').fadeOut("fast");
+            })
+            $("#intro").click(function (event) {
+                event.preventDefault();
+                $('#intro').fadeOut("fast");
+            })
+        });
+
+    </script>
+	
+	
+	<meta name="p:domain_verify" content="7c47cf56c08296ed0cff8c01d1932d90"/>
+</head>
+
+<body class="people index "><!-- BEGIN WAYBACK TOOLBAR INSERT -->
+<script>__wm.rw(0);</script>
+<div id="wm-ipp-base" lang="en" style="display:none;direction:ltr;" toolbar-mode="auto">
+<div id="wm-ipp" style="position:fixed;left:0;top:0;right:0;">
+<div id="donato" style="position:relative;width:100%;height:0;">
+  <div id="donato-base">
+    <iframe id="donato-if" src="https://archive.org/includes/donate.php?as_page=1&amp;platform=wb&amp;referer=https%3A//web.archive.org/web/20160114161921/http%3A//www.nerdery.com/people"
+	    scrolling="no" frameborder="0" style="width:100%; height:100%">
+    </iframe>
+  </div>
+</div><div id="wm-ipp-inside">
+  <div id="wm-toolbar" style="position:relative;display:flex;flex-flow:row nowrap;justify-content:space-between;" nav="async">
+    <div id="wm-logo" style="/*width:110px;*/padding-top:12px;">
+      <a href="/web/" title="Wayback Machine home page"><img src="https://web-static.archive.org/_static/images/toolbar/wayback-toolbar-logo-200.png" srcset="https://web-static.archive.org/_static/images/toolbar/wayback-toolbar-logo-100.png, https://web-static.archive.org/_static/images/toolbar/wayback-toolbar-logo-150.png 1.5x, https://web-static.archive.org/_static/images/toolbar/wayback-toolbar-logo-200.png 2x" alt="Wayback Machine" style="width:100px" border="0" /></a>
+    </div>
+    <div class="c" style="display:flex;flex-flow:column nowrap;justify-content:space-between;flex:1;">
+      <form class="u" style="display:flex;flex-direction:row;flex-wrap:nowrap;" target="_top" method="get" action="/web/submit" name="wmtb" id="wmtb"><input type="text" name="url" id="wmtbURL" value="http://www.nerdery.com/people" onfocus="this.focus();this.select();" style="flex:1;"/><input type="hidden" name="type" value="replay" /><input type="hidden" name="date" value="20160114161921" /><input type="submit" value="Go" />
+      </form>
+      <div style="display:flex;flex-flow:row nowrap;align-items:flex-end;">
+                <div class="s" id="wm-nav-captures" style="flex:1;">
+                    <a class="t" href="/web/20160114161921*/http://www.nerdery.com/people" title="See a list of every capture for this URL">642 captures</a>
+          <div class="r" title="Timespan for captures of this URL">07 May 2009 - 27 Sep 2025</div>
+          </div>
+        <div class="k">
+          <a href="" id="wm-graph-anchor">
+            <div id="wm-ipp-sparkline" title="Explore captures for this URL" style="position: relative">
+              <canvas id="wm-sparkline-canvas" width="775" height="27" border="0"></canvas>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="n">
+      <table>
+        <tbody>
+          <!-- NEXT/PREV MONTH NAV AND MONTH INDICATOR -->
+          <tr class="m">
+            <td class="b" nowrap="nowrap">Dec</td>
+            <td class="c" id="displayMonthEl" title="You are here: 16:19:21 Jan 14, 2016">JAN</td>
+            <td class="f" nowrap="nowrap">Feb</td>
+          </tr>
+          <!-- NEXT/PREV CAPTURE NAV AND DAY OF MONTH INDICATOR -->
+          <tr class="d">
+            <td class="b" nowrap="nowrap"><span class="ta"></span></td>
+            <td class="c" id="displayDayEl" style="width:34px;font-size:22px;white-space:nowrap;" title="You are here: 16:19:21 Jan 14, 2016">14</td>
+            <td class="f" nowrap="nowrap"><span class="ta"></span></td>
+          </tr>
+          <!-- NEXT/PREV YEAR NAV AND YEAR INDICATOR -->
+          <tr class="y">
+            <td class="b" nowrap="nowrap">2015</td>
+            <td class="c" id="displayYearEl" title="You are here: 16:19:21 Jan 14, 2016">2016</td>
+            <td class="f" nowrap="nowrap">2017</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="r" style="display:flex;flex-flow:column nowrap;align-items:flex-end;justify-content:space-between;">
+      <div id="wm-btns" style="text-align:right;height:23px;">
+                <span class="xxs">
+          <div id="wm-save-snapshot-success">success</div>
+          <div id="wm-save-snapshot-fail">fail</div>
+          <a id="wm-save-snapshot-open" href="#" title="Share via My Web Archive" >
+            <span class="iconochive-web"></span>
+          </a>
+          <a href="https://archive.org/account/login.php" title="Sign In" id="wm-sign-in">
+            <span class="iconochive-person"></span>
+          </a>
+          <span id="wm-save-snapshot-in-progress" class="iconochive-web"></span>
+        </span>
+                <a class="xxs" href="https://help.archive.org/help/category/the-wayback-machine/" title="Get some help using the Wayback Machine" style="top:-6px;"><span class="iconochive-question" style="color:rgb(87,186,244);font-size:160%;"></span></a>
+        <a id="wm-tb-close" href="#close" style="top:-2px;" title="Close the toolbar"><span class="iconochive-remove-circle" style="color:#888888;font-size:240%;"></span></a>
+      </div>
+      <div id="wm-share" class="xxs">
+        <a href="https://web.archive.org/web/20160114161921/http://web.archive.org/screenshot/http://www.nerdery.com/people"
+           id="wm-screenshot"
+           title="screenshot">
+          <span class="wm-icon-screen-shot"></span>
+        </a>
+        <a href="#" id="wm-video" title="video">
+          <span class="iconochive-movies"></span>
+        </a>
+        <a id="wm-share-facebook" href="#" data-url="https://web.archive.org/web/20160114161921/http://nerdery.com:80/people" title="Share on Facebook" style="margin-right:5px;" target="_blank"><span class="iconochive-facebook" style="color:#3b5998;font-size:160%;"></span></a>
+        <a id="wm-share-twitter" href="#" data-url="https://web.archive.org/web/20160114161921/http://nerdery.com:80/people" title="Share on Twitter" style="margin-right:5px;" target="_blank"><span class="iconochive-twitter" style="color:#1dcaff;font-size:160%;"></span></a>
+      </div>
+      <div style="padding-right:2px;text-align:right;white-space:nowrap;">
+        <a id="wm-expand" class="wm-btn wm-closed" href="#expand"><span id="wm-expand-icon" class="iconochive-down-solid"></span> <span class="xxs" style="font-size:80%;">About this capture</span></a>
+      </div>
+    </div>
+  </div>
+    <div id="wm-capinfo" style="border-top:1px solid #777;display:none; overflow: hidden">
+        <div id="wm-capinfo-notice" source="api"></div>
+                <div id="wm-capinfo-collected-by">
+    <div style="background-color:#666;color:#fff;font-weight:bold;text-align:center;padding:2px 0;">COLLECTED BY</div>
+    <div style="padding:3px;position:relative" id="wm-collected-by-content">
+            <div style="display:inline-block;vertical-align:top;width:50%;">
+			<span class="c-logo" style="background-image:url(https://archive.org/services/img/alexacrawls);"></span>
+		Organization: <a style="color:#33f;" href="https://archive.org/details/alexacrawls" target="_new"><span class="wm-title">Alexa Crawls</span></a>
+		<div style="max-height:75px;overflow:hidden;position:relative;">
+	  <div style="position:absolute;top:0;left:0;width:100%;height:75px;background:linear-gradient(to bottom,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 90%,rgba(255,255,255,255) 100%);"></div>
+	  Starting in 1996, <a href="http://www.alexa.com/">Alexa Internet</a> has been donating their crawl data to the Internet Archive.  Flowing in every day, these data are added to the <a href="http://web.archive.org/">Wayback Machine</a> after an embargo period.
+	</div>
+	      </div>
+      <div style="display:inline-block;vertical-align:top;width:49%;">
+			<span class="c-logo" style="background-image:url(https://archive.org/services/img/alexacrawls)"></span>
+		<div>Collection: <a style="color:#33f;" href="https://archive.org/details/alexacrawls" target="_new"><span class="wm-title">Alexa Crawls</span></a></div>
+		<div style="max-height:75px;overflow:hidden;position:relative;">
+	  <div style="position:absolute;top:0;left:0;width:100%;height:75px;background:linear-gradient(to bottom,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 90%,rgba(255,255,255,255) 100%);"></div>
+	  Starting in 1996, <a href="http://www.alexa.com/">Alexa Internet</a> has been donating their crawl data to the Internet Archive.  Flowing in every day, these data are added to the <a href="http://web.archive.org/">Wayback Machine</a> after an embargo period.
+	</div>
+	      </div>
+    </div>
+    </div>
+    <div id="wm-capinfo-timestamps">
+    <div style="background-color:#666;color:#fff;font-weight:bold;text-align:center;padding:2px 0;" title="Timestamps for the elements of this page">TIMESTAMPS</div>
+    <div>
+      <div id="wm-capresources" style="margin:0 5px 5px 5px;max-height:250px;overflow-y:scroll !important"></div>
+      <div id="wm-capresources-loading" style="text-align:left;margin:0 20px 5px 5px;display:none"><img src="https://web-static.archive.org/_static/images/loading.gif" alt="loading" /></div>
+    </div>
+    </div>
+  </div></div></div></div><div id="wm-ipp-print">The Wayback Machine - https://web.archive.org/web/20160114161921/http://nerdery.com:80/people</div>
+<script type="text/javascript">//<![CDATA[
+__wm.bt(775,27,25,2,"web","http://www.nerdery.com/people","20160114161921",1996,"https://web-static.archive.org/_static/",["https://web-static.archive.org/_static/css/banner-styles.css?v=1utQkbB3","https://web-static.archive.org/_static/css/iconochive.css?v=3PDvdIFv"], false);
+  __wm.rw(1);
+//]]></script>
+<!-- END WAYBACK TOOLBAR INSERT -->
+ 
+<!-- Google Tag Manager -->
+<noscript><iframe src="https://web.archive.org/web/20160114161921if_/http://www.googletagmanager.com/ns.html?id=GTM-PN97ZK" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//web.archive.org/web/20160114161921/http://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PN97ZK');</script>
+<!-- End Google Tag Manager -->
+
+<div id="shade"></div>
+
+<header id="global-header"> 
+	<ul> 
+		<li><a href="https://web.archive.org/web/20160114161921/http://nerdery.com/">The Nerdery</a></li>
+		<li><a href="https://web.archive.org/web/20160114161921/http://overnightwebsitechallenge.com/">Web Challenge</a></li>
+		<li id="gnav-careers"><a href="https://web.archive.org/web/20160114161921/http://nerdery.com/careers">Careers</a></li>
+		<li><a href="https://web.archive.org/web/20160114161921/http://nerdery.com/events">Events</a></li>
+		<li><a href="https://web.archive.org/web/20160114161921/http://nerdery.com/news">News</a></li>
+		<li><a href="https://web.archive.org/web/20160114161921/http://nerdery.com/industries">Industries</a></li>
+	</ul> 
+</header>
+<div id="container">
+	<div id="header">
+		<a href="https://web.archive.org/web/20160114161921/http://www.nerdery.com/" id="logo"><img alt="Logo_nerdery" src="assets/logo_nerdery-8458f31f2edc07f6cdedc0a2c7a372f7.png"/></a>
+		<nav class="navigation">
+			<ul>
+				<li class="home inactive"><a href="https://web.archive.org/web/20160114161921/http://www.nerdery.com/"><span>Home</span></a></li>
+				<li class="people active"><a href="https://web.archive.org/web/20160114161921/http://www.nerdery.com/people"><span>Nerds</span></a></li>
+				<li class="projects"><a href="https://web.archive.org/web/20160114161921/http://www.nerdery.com/work"><span>Work</span></a></li>
+				<li class="method inactive"><a href="https://web.archive.org/web/20160114161921/http://www.nerdery.com/method"><span>Method</span></a></li>
+				<li class="blog inactive"><a href="https://web.archive.org/web/20160114161921/http://blog.nerdery.com/"><span>Blog</span></a></li>
+				<li class="contact inactive"><a href="https://web.archive.org/web/20160114161921/http://www.nerdery.com/contact"><span>Contact</span></a></li>
+			</ul>
+		</nav>
+	</div>
+
+	<div id="masthead">
+		<p>We&#x27;re comfortable being the geniuses behind the scenes but sometimes people want to know who we are</p>	
+
+
+<div id="people_browser">
+    <div id="loading"></div>
+    <div id="portrait" style="display:none">
+        
+    </div>
+    <div id="matte" style="display:none"></div>
+    <div id="intro">
+        <h1>Click around and get to know us.</h1>
+    </div>
+    <div id="periodic_table">
+        <a href="people/Md" class="nerds-sprite nerds-md  three support" rel="Md"><span>md</span></a><a href="people/Mc" class="nerds-sprite nerds-mc  four systems" rel="Mc"><span>mc</span></a><a href="people/To" class="nerds-sprite nerds-to  one support" rel="To"><span>to</span></a><a href="people/Mk" class="nerds-sprite nerds-mk  three development" rel="Mk"><span>mk</span></a><a href="people/Jk" class="nerds-sprite nerds-jk  three development" rel="Jk"><span>jk</span></a><a href="people/Ps" class="nerds-sprite nerds-ps  three systems" rel="Ps"><span>ps</span></a><a href="people/Jr" class="nerds-sprite nerds-jr  four support" rel="Jr"><span>jr</span></a><a href="people/Jh" class="nerds-sprite nerds-jh  one development" rel="Jh"><span>jh</span></a><a href="people/Jt" class="nerds-sprite nerds-jt  two systems" rel="Jt"><span>jt</span></a><a href="people/Bd" class="nerds-sprite nerds-bd  five development" rel="Bd"><span>bd</span></a><a href="people/Mz" class="nerds-sprite nerds-mz  three systems" rel="Mz"><span>mz</span></a><a href="people/Nl" class="nerds-sprite nerds-nl  three development" rel="Nl"><span>nl</span></a><a href="people/Mj" class="nerds-sprite nerds-mj  two ux" rel="Mj"><span>mj</span></a><a href="people/Bp" class="nerds-sprite nerds-bp  one accounts" rel="Bp"><span>bp</span></a><a href="people/Kn" class="nerds-sprite nerds-kn  five development" rel="Kn"><span>kn</span></a><a href="people/Mm" class="nerds-sprite nerds-mm  three support" rel="Mm"><span>mm</span></a><a href="people/Mt" class="nerds-sprite nerds-mt  four support" rel="Mt"><span>mt</span></a><a href="people/Aa" class="nerds-sprite nerds-aa  five accounts" rel="Aa"><span>aa</span></a><a href="people/Lk" class="nerds-sprite nerds-lk  one systems" rel="Lk"><span>lk</span></a><a href="people/Jp" class="nerds-sprite nerds-jp  five development" rel="Jp"><span>jp</span></a><a href="people/Jx" class="nerds-sprite nerds-jx  three development" rel="Jx"><span>jx</span></a><a href="people/Jo" class="nerds-sprite nerds-jo  one systems" rel="Jo"><span>jo</span></a><a href="people/Ke" class="nerds-sprite nerds-ke  two qa" rel="Ke"><span>ke</span></a><a href="people/De" class="nerds-sprite nerds-de  one development" rel="De"><span>de</span></a><a href="people/Rm" class="nerds-sprite nerds-rm  one development" rel="Rm"><span>rm</span></a><a href="people/Jz" class="nerds-sprite nerds-jz  one development" rel="Jz"><span>jz</span></a><a href="people/Ji" class="nerds-sprite nerds-ji  three development" rel="Ji"><span>ji</span></a><a href="people/Ks" class="nerds-sprite nerds-ks  three development" rel="Ks"><span>ks</span></a><a href="people/Bw" class="nerds-sprite nerds-bw  one development" rel="Bw"><span>bw</span></a><a href="people/Gr" class="nerds-sprite nerds-gr  three systems" rel="Gr"><span>gr</span></a><a href="people/Bl" class="nerds-sprite nerds-bl  four development" rel="Bl"><span>bl</span></a><a href="people/Mi" class="nerds-sprite nerds-mi  three development" rel="Mi"><span>mi</span></a><a href="people/Jf" class="nerds-sprite nerds-jf  five development" rel="Jf"><span>jf</span></a><a href="people/Te" class="nerds-sprite nerds-te  three accounts" rel="Te"><span>te</span></a><a href="people/Nk" class="nerds-sprite nerds-nk  four development" rel="Nk"><span>nk</span></a><a href="people/Rs" class="nerds-sprite nerds-rs  three development" rel="Rs"><span>rs</span></a><a href="people/Ar" class="nerds-sprite nerds-ar  five development" rel="Ar"><span>ar</span></a><a href="people/Tr" class="nerds-sprite nerds-tr  one development" rel="Tr"><span>tr</span></a><a href="people/Kt" class="nerds-sprite nerds-kt  two pm" rel="Kt"><span>kt</span></a><a href="people/Cl" class="nerds-sprite nerds-cl  two pm" rel="Cl"><span>cl</span></a><a href="people/Cb" class="nerds-sprite nerds-cb  four ux" rel="Cb"><span>cb</span></a><a href="people/Dz" class="nerds-sprite nerds-dz  four development" rel="Dz"><span>dz</span></a><a href="people/An" class="nerds-sprite nerds-an  two ux" rel="An"><span>an</span></a><a href="people/Ml" class="nerds-sprite nerds-ml  one development" rel="Ml"><span>ml</span></a><a href="people/Po" class="nerds-sprite nerds-po  four " rel="Po"><span>po</span></a><a href="people/Bh" class="nerds-sprite nerds-bh  one pm" rel="Bh"><span>bh</span></a><a href="people/Mw" class="nerds-sprite nerds-mw  one development" rel="Mw"><span>mw</span></a><a href="people/Ad" class="nerds-sprite nerds-ad  two development" rel="Ad"><span>ad</span></a><a href="people/Kv" class="nerds-sprite nerds-kv  four development" rel="Kv"><span>kv</span></a><a href="people/Pt" class="nerds-sprite nerds-pt  two development" rel="Pt"><span>pt</span></a><a href="people/Cf" class="nerds-sprite nerds-cf  five development" rel="Cf"><span>cf</span></a><a href="people/Kr" class="nerds-sprite nerds-kr  five se" rel="Kr"><span>kr</span></a><a href="people/Gb" class="nerds-sprite nerds-gb  three systems" rel="Gb"><span>gb</span></a><a href="people/Rd" class="nerds-sprite nerds-rd  three development" rel="Rd"><span>rd</span></a><a href="people/Ka" class="nerds-sprite nerds-ka  two pm" rel="Ka"><span>ka</span></a><a href="people/On" class="nerds-sprite nerds-on  one accounts" rel="On"><span>on</span></a><a href="people/Kw" class="nerds-sprite nerds-kw  three accounts" rel="Kw"><span>kw</span></a><a href="people/Sl" class="nerds-sprite nerds-sl  five accounts" rel="Sl"><span>sl</span></a><a href="people/Ci" class="nerds-sprite nerds-ci  five support" rel="Ci"><span>ci</span></a><a href="people/Dy" class="nerds-sprite nerds-dy  four development" rel="Dy"><span>dy</span></a><a href="people/Os" class="nerds-sprite nerds-os  three development" rel="Os"><span>os</span></a><a href="people/Th" class="nerds-sprite nerds-th  four development" rel="Th"><span>th</span></a><a href="people/Cz" class="nerds-sprite nerds-cz  three support" rel="Cz"><span>cz</span></a><a href="people/Cx" class="nerds-sprite nerds-cx  one development" rel="Cx"><span>cx</span></a><a href="people/Un" class="nerds-sprite nerds-un  four development" rel="Un"><span>un</span></a><a href="people/Su" class="nerds-sprite nerds-su  four support" rel="Su"><span>su</span></a><a href="people/Lh" class="nerds-sprite nerds-lh  five ux" rel="Lh"><span>lh</span></a><a href="people/Wk" class="nerds-sprite nerds-wk  two development" rel="Wk"><span>wk</span></a><a href="people/So" class="nerds-sprite nerds-so  three development" rel="So"><span>so</span></a><a href="people/Gl" class="nerds-sprite nerds-gl  two development" rel="Gl"><span>gl</span></a><a href="people/Ts" class="nerds-sprite nerds-ts  five accounts" rel="Ts"><span>ts</span></a><a href="people/Ck" class="nerds-sprite nerds-ck  four accounts" rel="Ck"><span>ck</span></a><a href="people/Tn" class="nerds-sprite nerds-tn  two development" rel="Tn"><span>tn</span></a><a href="people/Cw" class="nerds-sprite nerds-cw  two development" rel="Cw"><span>cw</span></a><a href="people/Ry" class="nerds-sprite nerds-ry  four development" rel="Ry"><span>ry</span></a><a href="people/Hd" class="nerds-sprite nerds-hd  two ux" rel="Hd"><span>hd</span></a><a href="people/Co" class="nerds-sprite nerds-co  one accounts" rel="Co"><span>co</span></a><a href="people/Hl" class="nerds-sprite nerds-hl  five accounts" rel="Hl"><span>hl</span></a><a href="people/Tv" class="nerds-sprite nerds-tv  four qa" rel="Tv"><span>tv</span></a><a href="people/Py" class="nerds-sprite nerds-py  one development" rel="Py"><span>py</span></a><a href="people/Mo" class="nerds-sprite nerds-mo  two accounts" rel="Mo"><span>mo</span></a><a href="people/Ms" class="nerds-sprite nerds-ms  one development" rel="Ms"><span>ms</span></a><a href="people/Na" class="nerds-sprite nerds-na  one support" rel="Na"><span>na</span></a><a href="people/Am" class="nerds-sprite nerds-am  four development" rel="Am"><span>am</span></a><a href="people/Rf" class="nerds-sprite nerds-rf  two pm" rel="Rf"><span>rf</span></a><a href="people/Tk" class="nerds-sprite nerds-tk  one development" rel="Tk"><span>tk</span></a><a href="people/Us" class="nerds-sprite nerds-us  one qa" rel="Us"><span>us</span></a><a href="people/Ku" class="nerds-sprite nerds-ku  four development" rel="Ku"><span>ku</span></a><a href="people/Lj" class="nerds-sprite nerds-lj  one pm" rel="Lj"><span>lj</span></a><a href="people/Pn" class="nerds-sprite nerds-pn  three development" rel="Pn"><span>pn</span></a><a href="people/Iy" class="nerds-sprite nerds-iy  three " rel="Iy"><span>iy</span></a><a href="people/Wt" class="nerds-sprite nerds-wt  two pm" rel="Wt"><span>wt</span></a><a href="people/Fm" class="nerds-sprite nerds-fm  three development" rel="Fm"><span>fm</span></a><a href="people/Re" class="nerds-sprite nerds-re  four ux" rel="Re"><span>re</span></a><a href="people/Wa" class="nerds-sprite nerds-wa  two qa" rel="Wa"><span>wa</span></a><a href="people/Lw" class="nerds-sprite nerds-lw  five development" rel="Lw"><span>lw</span></a><a href="people/Mb" class="nerds-sprite nerds-mb  five development" rel="Mb"><span>mb</span></a><a href="people/Kb" class="nerds-sprite nerds-kb  one development" rel="Kb"><span>kb</span></a><a href="people/Pl" class="nerds-sprite nerds-pl  three pm" rel="Pl"><span>pl</span></a><a href="people/Si" class="nerds-sprite nerds-si  one development" rel="Si"><span>si</span></a><a href="people/Uv" class="nerds-sprite nerds-uv  two accounts" rel="Uv"><span>uv</span></a><a href="people/Wg" class="nerds-sprite nerds-wg  two se" rel="Wg"><span>wg</span></a><a href="people/La" class="nerds-sprite nerds-la  three qa" rel="La"><span>la</span></a><a href="people/Ll" class="nerds-sprite nerds-ll  three systems" rel="Ll"><span>ll</span></a><a href="people/Fr" class="nerds-sprite nerds-fr  five support" rel="Fr"><span>fr</span></a><a href="people/Kh" class="nerds-sprite nerds-kh  four support" rel="Kh"><span>kh</span></a><a href="people/Ok" class="nerds-sprite nerds-ok  three accounts" rel="Ok"><span>ok</span></a><a href="people/Kp" class="nerds-sprite nerds-kp  five ux" rel="Kp"><span>kp</span></a><a href="people/We" class="nerds-sprite nerds-we  five accounts" rel="We"><span>we</span></a><a href="people/Ii" class="nerds-sprite nerds-ii  five qa" rel="Ii"><span>ii</span></a><a href="people/Nc" class="nerds-sprite nerds-nc  five development" rel="Nc"><span>nc</span></a><a href="people/Hk" class="nerds-sprite nerds-hk  five support" rel="Hk"><span>hk</span></a><a href="people/Zm" class="nerds-sprite nerds-zm  five qa" rel="Zm"><span>zm</span></a><a href="people/Vl" class="nerds-sprite nerds-vl  four qa" rel="Vl"><span>vl</span></a><a href="people/Kc" class="nerds-sprite nerds-kc  two development" rel="Kc"><span>kc</span></a><a href="people/Tu" class="nerds-sprite nerds-tu  one pm" rel="Tu"><span>tu</span></a><a href="people/Bx" class="nerds-sprite nerds-bx  four pm" rel="Bx"><span>bx</span></a><a href="people/Hs" class="nerds-sprite nerds-hs  two accounts" rel="Hs"><span>hs</span></a><a href="people/Oa" class="nerds-sprite nerds-oa  four support" rel="Oa"><span>oa</span></a><a href="people/Ow" class="nerds-sprite nerds-ow  five development" rel="Ow"><span>ow</span></a><a href="people/Mx" class="nerds-sprite nerds-mx  five development" rel="Mx"><span>mx</span></a><a href="people/Ea" class="nerds-sprite nerds-ea  four ux" rel="Ea"><span>ea</span></a><a href="people/Yk" class="nerds-sprite nerds-yk  two accounts" rel="Yk"><span>yk</span></a><a href="people/Uc" class="nerds-sprite nerds-uc  four ux" rel="Uc"><span>uc</span></a><a href="people/Yl" class="nerds-sprite nerds-yl  two se" rel="Yl"><span>yl</span></a><a href="people/Rn" class="nerds-sprite nerds-rn  three development" rel="Rn"><span>rn</span></a><a href="people/Ox" class="nerds-sprite nerds-ox  five " rel="Ox"><span>ox</span></a><a href="people/Jv" class="nerds-sprite nerds-jv  five se" rel="Jv"><span>jv</span></a><a href="people/Gm" class="nerds-sprite nerds-gm  two development" rel="Gm"><span>gm</span></a><a href="people/Bf" class="nerds-sprite nerds-bf  five ux" rel="Bf"><span>bf</span></a><a href="people/Jq" class="nerds-sprite nerds-jq  three ux" rel="Jq"><span>jq</span></a><a href="people/Ls" class="nerds-sprite nerds-ls  five ux" rel="Ls"><span>ls</span></a><a href="people/Se" class="nerds-sprite nerds-se  four development" rel="Se"><span>se</span></a><a href="people/Cc" class="nerds-sprite nerds-cc  two pm" rel="Cc"><span>cc</span></a><a href="people/Mf" class="nerds-sprite nerds-mf  two support" rel="Mf"><span>mf</span></a><a href="people/Ty" class="nerds-sprite nerds-ty  two development" rel="Ty"><span>ty</span></a><a href="people/Vf" class="nerds-sprite nerds-vf  four development" rel="Vf"><span>vf</span></a><a href="people/Wi" class="nerds-sprite nerds-wi  two support" rel="Wi"><span>wi</span></a><a href="people/Ba" class="nerds-sprite nerds-ba  one development" rel="Ba"><span>ba</span></a><a href="people/Zi" class="nerds-sprite nerds-zi  four development" rel="Zi"><span>zi</span></a><a href="people/Od" class="nerds-sprite nerds-od  two accounts" rel="Od"><span>od</span></a><a href="people/Lt" class="nerds-sprite nerds-lt  one development" rel="Lt"><span>lt</span></a><a href="people/He" class="nerds-sprite nerds-he  one development" rel="He"><span>he</span></a><a href="people/Kg" class="nerds-sprite nerds-kg  three systems" rel="Kg"><span>kg</span></a><a href="people/Gs" class="nerds-sprite nerds-gs  one support" rel="Gs"><span>gs</span></a><a href="people/Ky" class="nerds-sprite nerds-ky  three accounts" rel="Ky"><span>ky</span></a><a href="people/Kd" class="nerds-sprite nerds-kd  four se" rel="Kd"><span>kd</span></a><a href="people/Vm" class="nerds-sprite nerds-vm  two development" rel="Vm"><span>vm</span></a><a href="people/Ei" class="nerds-sprite nerds-ei  four development" rel="Ei"><span>ei</span></a><a href="people/Dx" class="nerds-sprite nerds-dx  one qa" rel="Dx"><span>dx</span></a><a href="people/Ht" class="nerds-sprite nerds-ht  five development" rel="Ht"><span>ht</span></a><a href="people/Vn" class="nerds-sprite nerds-vn  one development" rel="Vn"><span>vn</span></a><a href="people/Oy" class="nerds-sprite nerds-oy  five ux" rel="Oy"><span>oy</span></a><a href="people/Ns" class="nerds-sprite nerds-ns  five development" rel="Ns"><span>ns</span></a><a href="people/Fb" class="nerds-sprite nerds-fb  five ux" rel="Fb"><span>fb</span></a><a href="people/Ik" class="nerds-sprite nerds-ik  two pm" rel="Ik"><span>ik</span></a><a href="people/Ln" class="nerds-sprite nerds-ln  three support" rel="Ln"><span>ln</span></a><a href="people/Ut" class="nerds-sprite nerds-ut  three development" rel="Ut"><span>ut</span></a><a href="people/Rj" class="nerds-sprite nerds-rj  one accounts" rel="Rj"><span>rj</span></a><a href="people/Vg" class="nerds-sprite nerds-vg  four qa" rel="Vg"><span>vg</span></a><a href="people/Lu" class="nerds-sprite nerds-lu  three pm" rel="Lu"><span>lu</span></a><a href="people/Rp" class="nerds-sprite nerds-rp  one development" rel="Rp"><span>rp</span></a><a href="people/Ag" class="nerds-sprite nerds-ag  four support" rel="Ag"><span>ag</span></a><a href="people/Fd" class="nerds-sprite nerds-fd  one pm" rel="Fd"><span>fd</span></a><a href="people/Yr" class="nerds-sprite nerds-yr  three ux" rel="Yr"><span>yr</span></a><a href="people/Ze" class="nerds-sprite nerds-ze  four development" rel="Ze"><span>ze</span></a><a href="people/Ol" class="nerds-sprite nerds-ol  three development" rel="Ol"><span>ol</span></a><a href="people/Cd" class="nerds-sprite nerds-cd  four ux" rel="Cd"><span>cd</span></a><a href="people/Ng" class="nerds-sprite nerds-ng  two accounts" rel="Ng"><span>ng</span></a><a href="people/Ob" class="nerds-sprite nerds-ob  three qa" rel="Ob"><span>ob</span></a><a href="people/Ro" class="nerds-sprite nerds-ro  two ux" rel="Ro"><span>ro</span></a><a href="people/Sx" class="nerds-sprite nerds-sx  one ux" rel="Sx"><span>sx</span></a><a href="people/Dd" class="nerds-sprite nerds-dd  four development" rel="Dd"><span>dd</span></a><a href="people/Tl" class="nerds-sprite nerds-tl  two accounts" rel="Tl"><span>tl</span></a><a href="people/Je" class="nerds-sprite nerds-je  four development" rel="Je"><span>je</span></a><a href="people/Dq" class="nerds-sprite nerds-dq  two " rel="Dq"><span>dq</span></a><a href="people/No" class="nerds-sprite nerds-no  two pm" rel="No"><span>no</span></a><a href="people/Ax" class="nerds-sprite nerds-ax  five pm" rel="Ax"><span>ax</span></a><a href="people/Nd" class="nerds-sprite nerds-nd  two development" rel="Nd"><span>nd</span></a><a href="people/Vo" class="nerds-sprite nerds-vo  one support" rel="Vo"><span>vo</span></a><a href="people/Zr" class="nerds-sprite nerds-zr  five pm" rel="Zr"><span>zr</span></a><a href="people/Zb" class="nerds-sprite nerds-zb  two qa" rel="Zb"><span>zb</span></a><a href="people/Ca" class="nerds-sprite nerds-ca  four systems" rel="Ca"><span>ca</span></a><a href="people/Nf" class="nerds-sprite nerds-nf  one qa" rel="Nf"><span>nf</span></a><a href="people/Nn" class="nerds-sprite nerds-nn  three development" rel="Nn"><span>nn</span></a><a href="people/Ws" class="nerds-sprite nerds-ws  four development" rel="Ws"><span>ws</span></a><a href="people/Hj" class="nerds-sprite nerds-hj  two support" rel="Hj"><span>hj</span></a><a href="people/Ni" class="nerds-sprite nerds-ni  five development" rel="Ni"><span>ni</span></a><a href="people/Nb" class="nerds-sprite nerds-nb  two development" rel="Nb"><span>nb</span></a><a href="people/Ye" class="nerds-sprite nerds-ye  two development" rel="Ye"><span>ye</span></a><a href="people/Ue" class="nerds-sprite nerds-ue  two support" rel="Ue"><span>ue</span></a><a href="people/Wq" class="nerds-sprite nerds-wq  one development" rel="Wq"><span>wq</span></a><a href="people/Dh" class="nerds-sprite nerds-dh  five qa" rel="Dh"><span>dh</span></a><a href="people/Zj" class="nerds-sprite nerds-zj  five development" rel="Zj"><span>zj</span></a><a href="people/Nr" class="nerds-sprite nerds-nr  three support" rel="Nr"><span>nr</span></a><a href="people/St" class="nerds-sprite nerds-st  four development" rel="St"><span>st</span></a><a href="people/Pg" class="nerds-sprite nerds-pg  five qa" rel="Pg"><span>pg</span></a><a href="people/Mr" class="nerds-sprite nerds-mr  three pm" rel="Mr"><span>mr</span></a><a href="people/Eo" class="nerds-sprite nerds-eo  two qa" rel="Eo"><span>eo</span></a><a href="people/Hq" class="nerds-sprite nerds-hq  five support" rel="Hq"><span>hq</span></a><a href="people/Ud" class="nerds-sprite nerds-ud  one development" rel="Ud"><span>ud</span></a><a href="people/Af" class="nerds-sprite nerds-af  five qa" rel="Af"><span>af</span></a><a href="people/Ot" class="nerds-sprite nerds-ot  two qa" rel="Ot"><span>ot</span></a><a href="people/Zx" class="nerds-sprite nerds-zx  two qa" rel="Zx"><span>zx</span></a><a href="people/Cq" class="nerds-sprite nerds-cq  one " rel="Cq"><span>cq</span></a><a href="people/Av" class="nerds-sprite nerds-av  two development" rel="Av"><span>av</span></a><a href="people/Bc" class="nerds-sprite nerds-bc  five development" rel="Bc"><span>bc</span></a><a href="people/Yb" class="nerds-sprite nerds-yb  four support" rel="Yb"><span>yb</span></a><a href="people/Ys" class="nerds-sprite nerds-ys  three development" rel="Ys"><span>ys</span></a><a href="people/Nm" class="nerds-sprite nerds-nm  one development" rel="Nm"><span>nm</span></a><a href="people/Gy" class="nerds-sprite nerds-gy  two " rel="Gy"><span>gy</span></a><a href="people/Iz" class="nerds-sprite nerds-iz  four " rel="Iz"><span>iz</span></a><a href="people/Tj" class="nerds-sprite nerds-tj  five development" rel="Tj"><span>tj</span></a><a href="people/Vj" class="nerds-sprite nerds-vj  four development" rel="Vj"><span>vj</span></a><a href="people/Vd" class="nerds-sprite nerds-vd  five development" rel="Vd"><span>vd</span></a><a href="people/Ux" class="nerds-sprite nerds-ux  one pm" rel="Ux"><span>ux</span></a><a href="people/Vc" class="nerds-sprite nerds-vc  one development" rel="Vc"><span>vc</span></a><a href="people/Ve" class="nerds-sprite nerds-ve  four development" rel="Ve"><span>ve</span></a><a href="people/Pv" class="nerds-sprite nerds-pv  three development" rel="Pv"><span>pv</span></a><a href="people/Vb" class="nerds-sprite nerds-vb  four development" rel="Vb"><span>vb</span></a><a href="people/Vh" class="nerds-sprite nerds-vh  four development" rel="Vh"><span>vh</span></a><a href="people/Vp" class="nerds-sprite nerds-vp  four development" rel="Vp"><span>vp</span></a><a href="people/Cg" class="nerds-sprite nerds-cg  two development" rel="Cg"><span>cg</span></a><a href="people/Bv" class="nerds-sprite nerds-bv  four development" rel="Bv"><span>bv</span></a><a href="people/Eq" class="nerds-sprite nerds-eq  four development" rel="Eq"><span>eq</span></a><a href="people/Pf" class="nerds-sprite nerds-pf  four ux" rel="Pf"><span>pf</span></a><a href="people/Hv" class="nerds-sprite nerds-hv  one development" rel="Hv"><span>hv</span></a><a href="people/Vr" class="nerds-sprite nerds-vr  four development" rel="Vr"><span>vr</span></a><a href="people/Fk" class="nerds-sprite nerds-fk  four se" rel="Fk"><span>fk</span></a><a href="people/If" class="nerds-sprite nerds-if  one development" rel="If"><span>if</span></a><a href="people/Ig" class="nerds-sprite nerds-ig  four accounts" rel="Ig"><span>ig</span></a><a href="people/Zu" class="nerds-sprite nerds-zu  three " rel="Zu"><span>zu</span></a><a href="people/Vt" class="nerds-sprite nerds-vt  four pm" rel="Vt"><span>vt</span></a><a href="people/Vu" class="nerds-sprite nerds-vu  three pm" rel="Vu"><span>vu</span></a><a href="people/Wj" class="nerds-sprite nerds-wj  five development" rel="Wj"><span>wj</span></a><a href="people/Vx" class="nerds-sprite nerds-vx  one development" rel="Vx"><span>vx</span></a><a href="people/Hx" class="nerds-sprite nerds-hx  five ux" rel="Hx"><span>hx</span></a><a href="people/Dk" class="nerds-sprite nerds-dk  five development" rel="Dk"><span>dk</span></a><a href="people/Fv" class="nerds-sprite nerds-fv  three development" rel="Fv"><span>fv</span></a><a href="people/Ga" class="nerds-sprite nerds-ga  four development" rel="Ga"><span>ga</span></a><a href="people/Vi" class="nerds-sprite nerds-vi  four support" rel="Vi"><span>vi</span></a><a href="people/Cj" class="nerds-sprite nerds-cj  five ux" rel="Cj"><span>cj</span></a><a href="people/Wd" class="nerds-sprite nerds-wd  one ux" rel="Wd"><span>wd</span></a><a href="people/As" class="nerds-sprite nerds-as  three pm" rel="As"><span>as</span></a><a href="people/Le" class="nerds-sprite nerds-le  two ux" rel="Le"><span>le</span></a><a href="people/Li" class="nerds-sprite nerds-li  three accounts" rel="Li"><span>li</span></a><a href="people/Oi" class="nerds-sprite nerds-oi  two accounts" rel="Oi"><span>oi</span></a><a href="people/Ko" class="nerds-sprite nerds-ko  four qa" rel="Ko"><span>ko</span></a><a href="people/Pd" class="nerds-sprite nerds-pd  five pm" rel="Pd"><span>pd</span></a><a href="people/Ef" class="nerds-sprite nerds-ef  three qa" rel="Ef"><span>ef</span></a><a href="people/Pa" class="nerds-sprite nerds-pa  four support" rel="Pa"><span>pa</span></a><a href="people/Bz" class="nerds-sprite nerds-bz  three development" rel="Bz"><span>bz</span></a><a href="people/Jw" class="nerds-sprite nerds-jw  two se" rel="Jw"><span>jw</span></a><a href="people/Ra" class="nerds-sprite nerds-ra  five pm" rel="Ra"><span>ra</span></a><a href="people/Ek" class="nerds-sprite nerds-ek  three development" rel="Ek"><span>ek</span></a><a href="people/Tb" class="nerds-sprite nerds-tb  three qa" rel="Tb"><span>tb</span></a><a href="people/Zk" class="nerds-sprite nerds-zk  one qa" rel="Zk"><span>zk</span></a><a href="people/Pc" class="nerds-sprite nerds-pc  two development" rel="Pc"><span>pc</span></a><a href="people/Cu" class="nerds-sprite nerds-cu  five pm" rel="Cu"><span>cu</span></a><a href="people/Ed" class="nerds-sprite nerds-ed  three development" rel="Ed"><span>ed</span></a><a href="people/Tw" class="nerds-sprite nerds-tw  four pm" rel="Tw"><span>tw</span></a><a href="people/Fi" class="nerds-sprite nerds-fi  four pm" rel="Fi"><span>fi</span></a><a href="people/Be" class="nerds-sprite nerds-be  one development" rel="Be"><span>be</span></a><a href="people/Br" class="nerds-sprite nerds-br  five ux" rel="Br"><span>br</span></a><a href="people/Cm" class="nerds-sprite nerds-cm  five ux" rel="Cm"><span>cm</span></a><a href="people/Jg" class="nerds-sprite nerds-jg  three qa" rel="Jg"><span>jg</span></a><a href="people/Pm" class="nerds-sprite nerds-pm  one development" rel="Pm"><span>pm</span></a><a href="people/Ge" class="nerds-sprite nerds-ge  three se" rel="Ge"><span>ge</span></a><a href="people/Ly" class="nerds-sprite nerds-ly  four ux" rel="Ly"><span>ly</span></a><a href="people/Km" class="nerds-sprite nerds-km  two development" rel="Km"><span>km</span></a><a href="people/My" class="nerds-sprite nerds-my  three development" rel="My"><span>my</span></a><a href="people/Nh" class="nerds-sprite nerds-nh  four development" rel="Nh"><span>nh</span></a><a href="people/Tc" class="nerds-sprite nerds-tc  one systems" rel="Tc"><span>tc</span></a><a href="people/Aj" class="nerds-sprite nerds-aj  five pm" rel="Aj"><span>aj</span></a><a href="people/Cs" class="nerds-sprite nerds-cs  four ux" rel="Cs"><span>cs</span></a><a href="people/Bg" class="nerds-sprite nerds-bg  four ux" rel="Bg"><span>bg</span></a><a href="people/Di" class="nerds-sprite nerds-di  five development" rel="Di"><span>di</span></a><a href="people/Mp" class="nerds-sprite nerds-mp  five support" rel="Mp"><span>mp</span></a><a href="people/Az" class="nerds-sprite nerds-az  four development" rel="Az"><span>az</span></a><a href="people/Cv" class="nerds-sprite nerds-cv  two pm" rel="Cv"><span>cv</span></a><a href="people/Hz" class="nerds-sprite nerds-hz  four qa" rel="Hz"><span>hz</span></a><a href="people/Ja" class="nerds-sprite nerds-ja  five ux" rel="Ja"><span>ja</span></a><a href="people/Js" class="nerds-sprite nerds-js  two development" rel="Js"><span>js</span></a><a href="people/Kz" class="nerds-sprite nerds-kz  three support" rel="Kz"><span>kz</span></a><a href="people/Sg" class="nerds-sprite nerds-sg  five development" rel="Sg"><span>sg</span></a><a href="people/Ne" class="nerds-sprite nerds-ne  three development" rel="Ne"><span>ne</span></a><a href="people/Zq" class="nerds-sprite nerds-zq  four development" rel="Zq"><span>zq</span></a><a href="people/Rg" class="nerds-sprite nerds-rg  three development" rel="Rg"><span>rg</span></a><a href="people/Ic" class="nerds-sprite nerds-ic  one development" rel="Ic"><span>ic</span></a><a href="people/Kj" class="nerds-sprite nerds-kj  four pm" rel="Kj"><span>kj</span></a><a href="people/Jm" class="nerds-sprite nerds-jm  three development" rel="Jm"><span>jm</span></a><a href="people/Lz" class="nerds-sprite nerds-lz  four pm" rel="Lz"><span>lz</span></a><a href="people/Td" class="nerds-sprite nerds-td  two pm" rel="Td"><span>td</span></a><a href="people/Zl" class="nerds-sprite nerds-zl  three development" rel="Zl"><span>zl</span></a><a href="people/Hn" class="nerds-sprite nerds-hn  two se" rel="Hn"><span>hn</span></a><a href="people/Ab" class="nerds-sprite nerds-ab  five support" rel="Ab"><span>ab</span></a><a href="people/Zd" class="nerds-sprite nerds-zd  two support" rel="Zd"><span>zd</span></a><a href="people/Zg" class="nerds-sprite nerds-zg  two qa" rel="Zg"><span>zg</span></a><a href="people/Yz" class="nerds-sprite nerds-yz  four development" rel="Yz"><span>yz</span></a><a href="people/Kq" class="nerds-sprite nerds-kq  three development" rel="Kq"><span>kq</span></a><a href="people/Bb" class="nerds-sprite nerds-bb  four qa" rel="Bb"><span>bb</span></a><a href="people/Ao" class="nerds-sprite nerds-ao  two development" rel="Ao"><span>ao</span></a><a href="people/Yy" class="nerds-sprite nerds-yy  four development" rel="Yy"><span>yy</span></a><a href="people/Wc" class="nerds-sprite nerds-wc  five support" rel="Wc"><span>wc</span></a><a href="people/Yx" class="nerds-sprite nerds-yx  four se" rel="Yx"><span>yx</span></a><a href="people/Nj" class="nerds-sprite nerds-nj  two qa" rel="Nj"><span>nj</span></a><a href="people/Hi" class="nerds-sprite nerds-hi  one ux" rel="Hi"><span>hi</span></a><a href="people/Yv" class="nerds-sprite nerds-yv  two pm" rel="Yv"><span>yv</span></a><a href="people/Yu" class="nerds-sprite nerds-yu  four development" rel="Yu"><span>yu</span></a><a href="people/Yt" class="nerds-sprite nerds-yt  three pm" rel="Yt"><span>yt</span></a><a href="people/Tx" class="nerds-sprite nerds-tx  five development" rel="Tx"><span>tx</span></a><a href="people/Yp" class="nerds-sprite nerds-yp  three support" rel="Yp"><span>yp</span></a><a href="people/Yh" class="nerds-sprite nerds-yh  five qa" rel="Yh"><span>yh</span></a><a href="people/Wx" class="nerds-sprite nerds-wx  five development" rel="Wx"><span>wx</span></a><a href="people/Vz" class="nerds-sprite nerds-vz  five development" rel="Vz"><span>vz</span></a><a href="people/Wf" class="nerds-sprite nerds-wf  five pm" rel="Wf"><span>wf</span></a><a href="people/Wo" class="nerds-sprite nerds-wo  four development" rel="Wo"><span>wo</span></a><a href="people/Vq" class="nerds-sprite nerds-vq  two se" rel="Vq"><span>vq</span></a><a href="people/Pw" class="nerds-sprite nerds-pw  three qa" rel="Pw"><span>pw</span></a><a href="people/Uq" class="nerds-sprite nerds-uq  five development" rel="Uq"><span>uq</span></a><a href="people/Um" class="nerds-sprite nerds-um  two development" rel="Um"><span>um</span></a><a href="people/Uo" class="nerds-sprite nerds-uo  one development" rel="Uo"><span>uo</span></a><a href="people/Uk" class="nerds-sprite nerds-uk  four se" rel="Uk"><span>uk</span></a><a href="people/Rv" class="nerds-sprite nerds-rv  three se" rel="Rv"><span>rv</span></a><a href="people/Rq" class="nerds-sprite nerds-rq  one se" rel="Rq"><span>rq</span></a><a href="people/Df" class="nerds-sprite nerds-df  one support" rel="Df"><span>df</span></a><a href="people/Pk" class="nerds-sprite nerds-pk  two development" rel="Pk"><span>pk</span></a><a href="people/Ou" class="nerds-sprite nerds-ou  four development" rel="Ou"><span>ou</span></a><a href="people/Oq" class="nerds-sprite nerds-oq  one development" rel="Oq"><span>oq</span></a><a href="people/Ep" class="nerds-sprite nerds-ep  two development" rel="Ep"><span>ep</span></a><a href="people/Kf" class="nerds-sprite nerds-kf  five support" rel="Kf"><span>kf</span></a><a href="people/Eg" class="nerds-sprite nerds-eg  five pm" rel="Eg"><span>eg</span></a><a href="people/Oj" class="nerds-sprite nerds-oj  five " rel="Oj"><span>oj</span></a><a href="people/Ex" class="nerds-sprite nerds-ex  four development" rel="Ex"><span>ex</span></a><a href="people/Of" class="nerds-sprite nerds-of  five qa" rel="Of"><span>of</span></a><a href="people/Oe" class="nerds-sprite nerds-oe  one support" rel="Oe"><span>oe</span></a><a href="people/Nw" class="nerds-sprite nerds-nw  five development" rel="Nw"><span>nw</span></a><a href="people/Ny" class="nerds-sprite nerds-ny  three se" rel="Ny"><span>ny</span></a><a href="people/Np" class="nerds-sprite nerds-np  four development" rel="Np"><span>np</span></a><a href="people/Nu" class="nerds-sprite nerds-nu  five qa" rel="Nu"><span>nu</span></a><a href="people/Lg" class="nerds-sprite nerds-lg  three development" rel="Lg"><span>lg</span></a><a href="people/Lx" class="nerds-sprite nerds-lx  five support" rel="Lx"><span>lx</span></a><a href="people/Nq" class="nerds-sprite nerds-nq  two development" rel="Nq"><span>nq</span></a><a href="people/Nv" class="nerds-sprite nerds-nv  two development" rel="Nv"><span>nv</span></a><a href="people/Iq" class="nerds-sprite nerds-iq  one pm" rel="Iq"><span>iq</span></a><a href="people/Iu" class="nerds-sprite nerds-iu  two development" rel="Iu"><span>iu</span></a><a href="people/Is" class="nerds-sprite nerds-is  four se" rel="Is"><span>is</span></a><a href="people/Ir" class="nerds-sprite nerds-ir  four pm" rel="Ir"><span>ir</span></a><a href="people/Io" class="nerds-sprite nerds-io  four development" rel="Io"><span>io</span></a><a href="people/Ij" class="nerds-sprite nerds-ij  five development" rel="Ij"><span>ij</span></a><a href="people/Il" class="nerds-sprite nerds-il  one pm" rel="Il"><span>il</span></a><a href="people/Ia" class="nerds-sprite nerds-ia  five development" rel="Ia"><span>ia</span></a><a href="people/Gq" class="nerds-sprite nerds-gq  five development" rel="Gq"><span>gq</span></a><a href="people/Hp" class="nerds-sprite nerds-hp  four development" rel="Hp"><span>hp</span></a><a href="people/Dg" class="nerds-sprite nerds-dg  four development" rel="Dg"><span>dg</span></a><a href="people/Gp" class="nerds-sprite nerds-gp  five development" rel="Gp"><span>gp</span></a><a href="people/Gn" class="nerds-sprite nerds-gn  four development" rel="Gn"><span>gn</span></a><a href="people/Gj" class="nerds-sprite nerds-gj  one development" rel="Gj"><span>gj</span></a><a href="people/Fw" class="nerds-sprite nerds-fw  three se" rel="Fw"><span>fw</span></a><a href="people/Fu" class="nerds-sprite nerds-fu  five support" rel="Fu"><span>fu</span></a><a href="people/Gf" class="nerds-sprite nerds-gf  one development" rel="Gf"><span>gf</span></a><a href="people/Ej" class="nerds-sprite nerds-ej  four pm" rel="Ej"><span>ej</span></a><a href="people/Fp" class="nerds-sprite nerds-fp  five pm" rel="Fp"><span>fp</span></a><a href="people/Id" class="nerds-sprite nerds-id  three development" rel="Id"><span>id</span></a><a href="people/Fg" class="nerds-sprite nerds-fg  one support" rel="Fg"><span>fg</span></a><a href="people/Fc" class="nerds-sprite nerds-fc  two pm" rel="Fc"><span>fc</span></a><a href="people/Fo" class="nerds-sprite nerds-fo  four development" rel="Fo"><span>fo</span></a><a href="people/En" class="nerds-sprite nerds-en  one development" rel="En"><span>en</span></a><a href="people/Fh" class="nerds-sprite nerds-fh  five pm" rel="Fh"><span>fh</span></a><a href="people/Fe" class="nerds-sprite nerds-fe  four support" rel="Fe"><span>fe</span></a><a href="people/Cr" class="nerds-sprite nerds-cr  three pm" rel="Cr"><span>cr</span></a><a href="people/Sj" class="nerds-sprite nerds-sj  two pm" rel="Sj"><span>sj</span></a><a href="people/Rb" class="nerds-sprite nerds-rb  one development" rel="Rb"><span>rb</span></a><a href="people/Va" class="nerds-sprite nerds-va  five pm" rel="Va"><span>va</span></a><a href="people/Wb" class="nerds-sprite nerds-wb  three development" rel="Wb"><span>wb</span></a><a href="people/Im" class="nerds-sprite nerds-im  three development" rel="Im"><span>im</span></a><a href="people/Fs" class="nerds-sprite nerds-fs  four accounts" rel="Fs"><span>fs</span></a><a href="people/Bk" class="nerds-sprite nerds-bk  two development" rel="Bk"><span>bk</span></a><a href="people/Fa" class="nerds-sprite nerds-fa  two development" rel="Fa"><span>fa</span></a><a href="people/Sr" class="nerds-sprite nerds-sr  two accounts" rel="Sr"><span>sr</span></a><a href="people/Mn" class="nerds-sprite nerds-mn  three support" rel="Mn"><span>mn</span></a><a href="people/Ie" class="nerds-sprite nerds-ie  two development" rel="Ie"><span>ie</span></a><a href="people/Aq" class="nerds-sprite nerds-aq  three development" rel="Aq"><span>aq</span></a><a href="people/Zw" class="nerds-sprite nerds-zw  three accounts" rel="Zw"><span>zw</span></a><a href="people/Hf" class="nerds-sprite nerds-hf  two accounts" rel="Hf"><span>hf</span></a><a href="people/Gw" class="nerds-sprite nerds-gw  five support" rel="Gw"><span>gw</span></a><a href="people/Sz" class="nerds-sprite nerds-sz  one development" rel="Sz"><span>sz</span></a><a href="people/Sm" class="nerds-sprite nerds-sm  one ux" rel="Sm"><span>sm</span></a><a href="people/Jc" class="nerds-sprite nerds-jc  one accounts" rel="Jc"><span>jc</span></a><a href="people/Et" class="nerds-sprite nerds-et  four support" rel="Et"><span>et</span></a><a href="people/In" class="nerds-sprite nerds-in  three support" rel="In"><span>in</span></a><a href="people/Dn" class="nerds-sprite nerds-dn  five ux" rel="Dn"><span>dn</span></a><a href="people/Mq" class="nerds-sprite nerds-mq  five support" rel="Mq"><span>mq</span></a><a href="people/Sc" class="nerds-sprite nerds-sc  two ux" rel="Sc"><span>sc</span></a><a href="people/Mg" class="nerds-sprite nerds-mg  one support" rel="Mg"><span>mg</span></a><a href="people/Ha" class="nerds-sprite nerds-ha  four accounts" rel="Ha"><span>ha</span></a><a href="people/Ev" class="nerds-sprite nerds-ev  two development" rel="Ev"><span>ev</span></a><a href="people/Tm" class="nerds-sprite nerds-tm  one accounts" rel="Tm"><span>tm</span></a><a href="people/Au" class="nerds-sprite nerds-au  three accounts" rel="Au"><span>au</span></a><a href="people/Du" class="nerds-sprite nerds-du  five ux" rel="Du"><span>du</span></a><a href="people/Aw" class="nerds-sprite nerds-aw  five se" rel="Aw"><span>aw</span></a><a href="people/Dr" class="nerds-sprite nerds-dr  four accounts" rel="Dr"><span>dr</span></a><a href="people/Bj" class="nerds-sprite nerds-bj  one se" rel="Bj"><span>bj</span></a><a href="people/Cy" class="nerds-sprite nerds-cy  two development" rel="Cy"><span>cy</span></a><a href="people/Yf" class="nerds-sprite nerds-yf  four ux" rel="Yf"><span>yf</span></a><a href="people/Ju" class="nerds-sprite nerds-ju  five accounts" rel="Ju"><span>ju</span></a><a href="people/Ah" class="nerds-sprite nerds-ah  one ux" rel="Ah"><span>ah</span></a><a href="people/Za" class="nerds-sprite nerds-za  four ux" rel="Za"><span>za</span></a><a href="people/Er" class="nerds-sprite nerds-er  one support" rel="Er"><span>er</span></a><a href="people/Sf" class="nerds-sprite nerds-sf  three ux" rel="Sf"><span>sf</span></a><a href="people/Ak" class="nerds-sprite nerds-ak  one development" rel="Ak"><span>ak</span></a><a href="people/Ct" class="nerds-sprite nerds-ct  two development" rel="Ct"><span>ct</span></a><a href="people/Es" class="nerds-sprite nerds-es  five pm" rel="Es"><span>es</span></a><a href="people/Ki" class="nerds-sprite nerds-ki  four qa" rel="Ki"><span>ki</span></a><a href="people/Pu" class="nerds-sprite nerds-pu  five pm" rel="Pu"><span>pu</span></a><a href="people/Jj" class="nerds-sprite nerds-jj  four ux" rel="Jj"><span>jj</span></a><a href="people/Mu" class="nerds-sprite nerds-mu  four accounts" rel="Mu"><span>mu</span></a><a href="people/Nt" class="nerds-sprite nerds-nt  five development" rel="Nt"><span>nt</span></a><a href="people/Pj" class="nerds-sprite nerds-pj  five development" rel="Pj"><span>pj</span></a><a href="people/Ss" class="nerds-sprite nerds-ss  three development" rel="Ss"><span>ss</span></a><a href="people/Jn" class="nerds-sprite nerds-jn  four development" rel="Jn"><span>jn</span></a><a href="people/Jd" class="nerds-sprite nerds-jd  two development" rel="Jd"><span>jd</span></a><a href="people/Kl" class="nerds-sprite nerds-kl  two development" rel="Kl"><span>kl</span></a><a href="people/Vs" class="nerds-sprite nerds-vs  five development" rel="Vs"><span>vs</span></a><a href="people/Bs" class="nerds-sprite nerds-bs  five pm" rel="Bs"><span>bs</span></a><a href="people/Bt" class="nerds-sprite nerds-bt  five development" rel="Bt"><span>bt</span></a><a href="people/Ch" class="nerds-sprite nerds-ch  four development" rel="Ch"><span>ch</span></a><a href="people/Jb" class="nerds-sprite nerds-jb  five development" rel="Jb"><span>jb</span></a><a href="people/Mh" class="nerds-sprite nerds-mh  three support" rel="Mh"><span>mh</span></a><a href="people/Nz" class="nerds-sprite nerds-nz  four development" rel="Nz"><span>nz</span></a><a href="people/Rt" class="nerds-sprite nerds-rt  two development" rel="Rt"><span>rt</span></a><a href="people/Sa" class="nerds-sprite nerds-sa  one development" rel="Sa"><span>sa</span></a><a href="people/Mv" class="nerds-sprite nerds-mv  one development" rel="Mv"><span>mv</span></a><a href="people/Ri" class="nerds-sprite nerds-ri  one development" rel="Ri"><span>ri</span></a><a href="people/Bm" class="nerds-sprite nerds-bm  four development" rel="Bm"><span>bm</span></a><a href="people/Gg" class="nerds-sprite nerds-gg  three development" rel="Gg"><span>gg</span></a><a href="people/Jl" class="nerds-sprite nerds-jl  four pm" rel="Jl"><span>jl</span></a><a href="people/Pz" class="nerds-sprite nerds-pz  five development" rel="Pz"><span>pz</span></a><a href="people/Sq" class="nerds-sprite nerds-sq  three development" rel="Sq"><span>sq</span></a><a href="people/Hb" class="nerds-sprite nerds-hb  two ux" rel="Hb"><span>hb</span></a><a href="people/Hu" class="nerds-sprite nerds-hu  one development" rel="Hu"><span>hu</span></a><a href="people/Ww" class="nerds-sprite nerds-ww  five support" rel="Ww"><span>ww</span></a><a href="people/Pp" class="nerds-sprite nerds-pp  four development" rel="Pp"><span>pp</span></a><a href="people/Rl" class="nerds-sprite nerds-rl  five development" rel="Rl"><span>rl</span></a><a href="people/Rz" class="nerds-sprite nerds-rz  one development" rel="Rz"><span>rz</span></a><a href="people/Dp" class="nerds-sprite nerds-dp  four development" rel="Dp"><span>dp</span></a><a href="people/Ti" class="nerds-sprite nerds-ti  one development" rel="Ti"><span>ti</span></a><a href="people/Sh" class="nerds-sprite nerds-sh  three development" rel="Sh"><span>sh</span></a><a href="people/Dl" class="nerds-sprite nerds-dl  one development" rel="Dl"><span>dl</span></a><a href="people/Da" class="nerds-sprite nerds-da  five development" rel="Da"><span>da</span></a><a href="people/Kk" class="nerds-sprite nerds-kk  five pm" rel="Kk"><span>kk</span></a><a href="people/Sn" class="nerds-sprite nerds-sn  three development" rel="Sn"><span>sn</span></a><a href="people/Sy" class="nerds-sprite nerds-sy  four development" rel="Sy"><span>sy</span></a><a href="people/Rh" class="nerds-sprite nerds-rh  two development" rel="Rh"><span>rh</span></a><a href="people/Ce" class="nerds-sprite nerds-ce  two development" rel="Ce"><span>ce</span></a><a href="people/Lo" class="nerds-sprite nerds-lo  three development" rel="Lo"><span>lo</span></a><a href="people/Ff" class="nerds-sprite nerds-ff  three development" rel="Ff"><span>ff</span></a><a href="people/Pb" class="nerds-sprite nerds-pb  one development" rel="Pb"><span>pb</span></a><a href="people/Pq" class="nerds-sprite nerds-pq  one development" rel="Pq"><span>pq</span></a><a href="people/Lr" class="nerds-sprite nerds-lr  four development" rel="Lr"><span>lr</span></a><a href="people/Sv" class="nerds-sprite nerds-sv  two ux" rel="Sv"><span>sv</span></a><a href="people/Dc" class="nerds-sprite nerds-dc  three development" rel="Dc"><span>dc</span></a><a href="people/Bn" class="nerds-sprite nerds-bn  five accounts" rel="Bn"><span>bn</span></a><a href="people/Nx" class="nerds-sprite nerds-nx  four accounts" rel="Nx"><span>nx</span></a><a href="people/Sw" class="nerds-sprite nerds-sw  one development" rel="Sw"><span>sw</span></a><a href="people/Rx" class="nerds-sprite nerds-rx  one ux" rel="Rx"><span>rx</span></a><a href="people/Do" class="nerds-sprite nerds-do  two development" rel="Do"><span>do</span></a><a href="people/Wl" class="nerds-sprite nerds-wl  four development" rel="Wl"><span>wl</span></a><a href="people/Bo" class="nerds-sprite nerds-bo  three development" rel="Bo"><span>bo</span></a><a href="people/Ld" class="nerds-sprite nerds-ld  one development" rel="Ld"><span>ld</span></a><a href="people/Ym" class="nerds-sprite nerds-ym  one development" rel="Ym"><span>ym</span></a><a href="people/Sk" class="nerds-sprite nerds-sk  five accounts" rel="Sk"><span>sk</span></a><a href="people/Al" class="nerds-sprite nerds-al  four development" rel="Al"><span>al</span></a><a href="people/Bi" class="nerds-sprite nerds-bi  five accounts" rel="Bi"><span>bi</span></a><a href="people/Ta" class="nerds-sprite nerds-ta  two development" rel="Ta"><span>ta</span></a><a href="people/Me" class="nerds-sprite nerds-me  one development" rel="Me"><span>me</span></a><a href="people/Px" class="nerds-sprite nerds-px  two support" rel="Px"><span>px</span></a><a href="people/Ds" class="nerds-sprite nerds-ds  four development" rel="Ds"><span>ds</span></a><a href="https://web.archive.org/web/20160114161921/http://www.nerdery.com/careers" class="nerds-sprite-placeholder three"><span>you?</span></a><a href="https://web.archive.org/web/20160114161921/http://www.nerdery.com/careers" class="nerds-sprite-placeholder four"><span>you?</span></a>
+    </div>
+    <div id="filter">
+        <a href="" rel="development"><span>Developers</span></a><a href="" rel="ux"><span>User Experience</span></a><a href="" rel="qa"><span>Quality Assurance</span></a><a href="" rel="se"><span>Solutions Engineers</span></a><a href="" rel="pm"><span>Project MGMT</span></a><a href="" rel="accounts"><span>Accounts</span></a><a href="" rel="systems"><span>Systems</span></a><a href="" rel="support"><span>Support</span></a>
+        <form accept-charset="UTF-8" action="/web/20160114161921/http://www.nerdery.com/people" class="inline" id="search_form" method="get"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="✓"/></div>
+            <input id="people_search" name="search" placeholder="Search" type="text"/>
+            <noscript><input type="submit" value="filter"/></noscript>
+            <input id="department_field" name="department" type="hidden"/>
+</form>    </div>
+</div>
+
+	</div>
+
+	<div id="content" class="clearfix">
+		
+<section class="clearfix divider">
+	
+	<div class="grid grid3">
+		<h1>Intelligent Life @ The Nerdery</h1>
+		<p>The Nerdery is a company and culture created by nerds, and for nerds, founded in 2003 by three programmers. Now an interactive development firm hundreds strong, we remain industry leaders in helping our partners imagine and execute interactive projects. Our engineering roots inform our approach by focusing on preserving investment in existing systems and processes while taking full advantage of all the benefits modern technologies have to offer.</p>
+		<h2>You Can't Stump The Nerdery</h2>
+		<p>By focusing on technical consulting and execution while leaving industry insights and strategic genius to our partners, we get the chance to sharpen our skills on hundreds of challenging projects every day. It sounds simplistic, but the rest takes care of itself. Get the best and brightest nerds, make them happy, keep them here, work with great partners, get cool interactive projects, nail ‘em, wash, rinse, repeat.... We’ve built The Nerdery to be the ultimate destination for nerds – a safe haven for them to not only survive, but thrive.</p>
+		<p>Good code doesn’t happen by accident; we set the bar high with development standards. We empower programmers to set company standards on development tools because they have their ears to the ground on emerging tech, and we’d be foolish not to pick their brains and follow suit. All part of our distributed leadership model, our development committees consist of no managers – just developers nominated and elected by their peers.</p>
+	</div>
+	
+	<aside class="grid grid3 data">
+		
+		<figure id="data-nerds">
+			<figcaption>People Who Work at The Nerdery</figcaption>
+			<div>FOUR HUNDRED SIXTY-NINE</div>
+		</figure>
+		
+		<figure id="data-discipline">
+			<figcaption>Staffing by Discipline</figcaption>
+			<div>
+				<table>
+					<thead>
+						<tr>
+							<th>Discipline</th>
+							<th>Staffing</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="discipline"><span>PHP</span></td>
+							<td class="staffing"><span style="width: 161%">161</span></td>
+						</tr>
+						<tr>
+							<td class="discipline"><span>Actionscript</span></td>
+							<td class="staffing"><span style="width: 30%">30</span></td>
+						</tr>
+						<tr>
+							<td class="discipline"><span>HTML\CSS</span></td>
+							<td class="staffing"><span style="width: 107%">107</span></td>
+						</tr>
+						<tr>
+							<td class="discipline"><span>Zend</span></td>
+							<td class="staffing"><span style="width: 69%">69</span></td>
+						</tr>
+						<tr>
+							<td class="discipline"><span>Java</span></td>
+							<td class="staffing"><span style="width: 76%">76</span></td>
+						</tr>
+						<tr>
+							<td class="discipline"><span>.NET</span></td>
+							<td class="staffing"><span style="width: 102%">102</span></td>
+						</tr>
+						<tr>
+							<td class="discipline"><span>Databases/SQL</span></td>
+							<td class="staffing"><span style="width: 12%">12</span></td>
+						</tr>
+						<tr>
+							<td class="discipline"><span>Python</span></td>
+							<td class="staffing"><span style="width: 45%">45</span></td>
+						</tr>
+						<tr>
+							<td class="discipline"><span>Rails</span></td>
+							<td class="staffing"><span style="width: 24%">24</span></td>
+						</tr>
+						<tr>
+							<td class="discipline"><span>Pick</span></td>
+							<td class="staffing"><span style="width: 18%">18</span></td>
+						</tr>
+						<tr>
+							<td class="discipline"><span>Symfony</span></td>
+							<td class="staffing"><span style="width: 17%">17</span></td>
+						</tr>
+						<tr>
+							<td class="discipline"><span>Drupal</span></td>
+							<td class="staffing"><span style="width: 41%">41</span></td>
+						</tr>
+						<tr>
+							<td class="discipline"><span>Wordpress</span></td>
+							<td class="staffing"><span style="width: 102%">102</span></td>
+						</tr>
+						<tr>
+							<td class="discipline"><span>Flash</span></td>
+							<td class="staffing"><span style="width: 42%">42</span></td>
+						</tr>
+						<tr>
+							<td class="discipline"><span>iPhone Apps</span></td>
+							<td class="staffing"><span style="width: 55%">55</span></td>
+						</tr>
+						<tr>
+							<td class="discipline"><span>Javascript</span></td>
+							<td class="staffing"><span style="width: 211%">211</span></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</figure>
+		
+		<figure id="data-bikers">
+			<figcaption>Bike Commuters</figcaption>
+			<div>6<!-- SIX --></div>
+		</figure>
+		
+		<figure id="data-screens">
+			<figcaption>Screen Space</figcaption>
+			<div>400+ Square Feet</div>
+		</figure>
+		
+		<figure id="data-caffeine">
+			<figcaption><span>Adults Who Could be Killed by the Total Caffeine Consumed at The Nerdery in a Week</span></figcaption>
+			<div>FIVE</div>
+		</figure>
+		
+	</aside>
+	
+</section>
+
+<section id="best-place" class="clearfix feature divider">
+	<div class="grid grid6">
+		<h1>We’re Honored</h1>
+		<p>Not to brag, but based on employee surveys, we ranked #1 on the Best Places to Work list published by Mpls-St. Paul <em>Business Journal</em>, and also made Top Workplace lists published by Minneapolis <em>Star Tribune</em> and Minnesota <em>Monthly</em>. The Nerdery routinely makes the <em>Inc</em> 5000 and <em>Biz Journal</em> Fast 50 lists of fast-growing privately owned companies. Our CEO Mike Derheim was named a Minnesotan on the Move and was a CFO of the Year finalist when he was our CFO. The Nerdery was named Emerging Business of the Year at the 2011 Best in Business Awards. We’ve also had the honor of riding the coattails of our partners in winning a Cannes Golden Lion Award, Microsoft's Phizzpop Design Challenge, a Communication Arts Award, a PRSA Bronze Anvil Award, a Racie Award, a MOBI Best Mobile App Award and a Webby Award. Speech? Enough said.</p>
+	</div>
+</section>
+
+<section id="copresidents" class="clearfix feature divider">
+	<div class="grid grid6">
+		<h1>Co-Presidents, All of Us</h1>
+		<p>You’ll notice many Nerdery email signatures share the same lofty co-title; we have good reason to aspire to be Co-Presidents. Before his tragic passing, our co-founder Luke Bucklin was our President. Co-President was something he called us – all of us – in a staff email well over a thousand words, including these:</p>
+		<blockquote>“I remember a day when there were no managers, no directors, no coordinators and no specialists. We only had Presidents. Well, maybe one President and a couple of Co-Presidents. Forget about your titles. Put your business card on the desk in front of you. Look at it. I am here to tell you that this is not your title. This card does not define you. You are a Co-President. You are bigger than your defined role, and you are much more than your job title. Play your part – transcend your job title, be a hero.”</blockquote>
+		<a href="https://web.archive.org/web/20160114161921/http://www.nerdery.com/copresident" class="more">Learn more about being a Co-President</a>
+	</div>
+</section>
+
+<section id="web-challenge" class="clearfix feature divider">
+	<div class="grid grid6">
+		<h1>Overnight Website Challenge</h1>
+		<p>Our annual 24-hour Nerdery Overnight Website Challenge debuted in 2008 in the Twin Cities, started in Chicago in 2011 and will rear its head in other cities in the near future, pairing more volunteer web pros with nonprofit organizations in need of nerdy deeds done dirt cheap. We share The Jefferson Award and The Quality of Life Award with staff and friends throughout the development community. We believe successful businesses have all the more responsibility to give something back; our pro bono nerdathon for nonprofits gives us an opportunity to apply our time and talent toward the greater good.</p>
+		<a href="https://web.archive.org/web/20160114161921/http://www.overnightwebsitechallenge.com/" class="more">Learn more about The Nerdery Overnight Website Challenge</a>
+	</div>
+</section>
+
+<section id="for-nerds" class="feature grid grid6">
+	<h1>For Nerds By Nerds</h1>
+	
+	<div id="choosing-talent" class="subfeature">
+		<h2>Choo-choo-<br/>choosing talent</h2>
+		<p>We’ve become unstumpable by growing our capabilities and hoarding interactive talent, yet our acceptance rate of applicants is historically less than half that of Harvard, by our (non-Ivy League) math. We’re always recruiting the next generation of nerds.</p>
+	</div>
+	
+	<div id="dog-duty" class="subfeature">
+		<h2>Dogs do duty here</h2>
+		<p>Dogs are a nerd’s best friend. Every day is dog day at The Nerdery, with several four-legged friends tagging behind their masters. Some are regulars and some are more tentative sniffers. All are welcome and a part of what gives The Nerdery its “working-from-home” feel.</p>
+	</div>
+	
+	<div id="ecology" class="subfeature">
+		<h2>Ecology of Nerds</h2>
+		<p>Projects succeed when they have just the right mix of skills and resources. The Nerdery helps its partners balance the nerd ecology on their projects to promote successful and sustainable interactive projects.</p>
+		<a href="https://web.archive.org/web/20160114161921/http://www.nerdery.com/method#project_teams" class="more">Learn about teams</a>
+	</div>
+	
+</section>
+
+
+	</div>
+
+	<div id="footer">
+	    <div class="bar"></div>
+
+		<div class="social_media">
+			<h3>Follow us</h3>
+			<ul>
+				<li class="sm_twitter"><a href="https://web.archive.org/web/20160114161921/http://twitter.com/the_nerdery">Twitter</a></li>
+				<li class="sm_facebook"><a href="https://web.archive.org/web/20160114161921/http://www.facebook.com/TheNerdery">Facebook</a></li>
+				<li class="sm_vimeo"><a href="https://web.archive.org/web/20160114161921/http://vimeo.com/thenerdery">Vimeo</a></li>
+				<li class="sm_gplus"><a href="https://web.archive.org/web/20160114161921/https://plus.google.com/111604604448557339163" rel="publisher">Google+</a></li>
+			</ul>
+		</div>
+		
+		<div id="contact_options">
+				<h3><span>Got a cool project?</span> <span>Talk nerdy to us</span></h3>
+				<p><span><a href="https://web.archive.org/web/20160114161921/http://www.nerdery.com/contact">Contact Us</a></span> <span>(877) 664.6373</span></p>
+		</div>
+		
+		<div id="event_signup">
+			<h3>Email Newsletter</h3>
+			      <a href="https://web.archive.org/web/20160114161921/http://initialize.nerdery.com/subscribe">Subscribe</a>
+		</div>
+		
+		<div class="copyright">&copy; 2016 The Nerdery, LLC. <a href="https://web.archive.org/web/20160114161921/http://www.nerdery.com/privacy">Privacy Policy</a></div>
+	</div>	
+
+</div>
+</body>
+</html>
+<!--
+     FILE ARCHIVED ON 16:19:21 Jan 14, 2016 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 05:17:00 Aug 08, 2026.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+-->
+<!--
+playback timings (ms):
+  captures_list: 0.631
+  exclusion.robots: 0.049
+  exclusion.robots.policy: 0.036
+  esindex: 0.01
+  cdx.remote: 19.84
+  LoadShardBlock: 35.895 (3)
+  PetaboxLoader3.datanode: 63.023 (4)
+  load_resource: 92.477
+  PetaboxLoader3.resolve: 48.668
+  nav: 0.161 (6)
+-->
