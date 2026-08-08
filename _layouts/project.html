@@ -1,0 +1,13 @@
+---
+layout: default
+---
+<p><a href="/projects">&laquo; back to projects</a></p>
+<h1>{{ page.title }}</h1>
+<p class="meta">
+  {{ page.tag }}
+  {% if page.github %} &middot; <a href="{{ page.github }}" target="_blank" rel="noopener">source on github</a>{% endif %}
+</p>
+
+<div class="box box--{{ page.color | default: 'green' }} post">
+  {{ content }}
+</div>

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Chris Figueroa. Site Launch"
+title: "Chris Figueroa Braff. Site Launch"
 date: 2014-04-30
 ---
 

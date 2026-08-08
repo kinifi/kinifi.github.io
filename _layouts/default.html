@@ -1,30 +1,462 @@
 <!DOCTYPE html>
-	<html>
-		<head>
-			<title>{{ page.title }}</title>
-			<!-- link to main stylesheet -->
-			<link rel="stylesheet" type="text/css" href="/css/main.css">
-		</head>
-		<body>
-			<nav>
-	    		<ul>
-	        		<li><a href="/">Home</a></li>
-		        	<li><a href="/projects">Projects</a></li>
-	        		<li><a href="/cv">CV</a></li>
-	        		<li><a href="/blog">Blog</a></li>
-				<li><a href="/about">About</a></li>
-	    		</ul>
-			</nav>
-			<div class="container">
-			
-			{{ content }}
-			
-			</div><!-- /.container -->
-			<footer>
-	    		<ul>
-              <li><a href="https://twitter.com/kinifi">@kinifi</a></li>
-	        		<li><a href="https://github.com/kinifi">github.com/kinifi</a></li>
-				</ul>
-			</footer>
-		</body>
-	</html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page.title | default: site.name }}</title>
+  <link rel="stylesheet" type="text/css" href="/css/main.css">
+</head>
+<body>
+  <div class="frame">
+    <div class="ascii-skyline" id="ascii-skyline" aria-hidden="true"></div>
+
+    <nav class="crt-nav">
+      <a href="/"         {% if page.url == "/" %}class="active"{% endif %}>[ home ]</a>
+      <a href="/projects" {% if page.url contains "/projects" %}class="active"{% endif %}>[ projects ]</a>
+      <a href="/blog"      {% if page.url contains "/blog" %}class="active"{% endif %}>[ blog ]</a>
+      <!-- <a href="/cv"         {% if page.url contains "/cv" %}class="active"{% endif %}>[ cv ]</a> -->
+      <a href="/search"    {% if page.url contains "/search" %}class="active"{% endif %}>[ search ]</a>
+    </nav>
+
+    <header class="site-header">
+      <a href="/" style="text-decoration:none;">
+        <p class="logo" id="glitch-logo" data-text="kinifi_">kinifi_</p>
+      </a>
+      <span class="tagline" id="glitch-tagline" data-text="hardware + software">hardware + software</span>
+    </header>
+
+    <div class="container">
+      {{ content }}
+    </div>
+  </div>
+
+  <div class="below-border">
+    <p class="below-border-text">the world behind the content grows a little every 10 minutes, tracked from your first visit — it never resets. type a seed to grow your own.</p>
+    <div class="world-controls">
+      <input type="text" id="seed-input" class="seed-input" placeholder="seed..." autocomplete="off" spellcheck="false">
+      <button type="button" id="btn-create-world" class="below-border-btn">[ create world ]</button>
+      <button type="button" id="btn-world" class="below-border-btn">[ world ]</button>
+      <button type="button" id="btn-planet" class="below-border-btn">[ planet ]</button>
+      {% if page.url == "/" %}
+      <button type="button" id="toggle-info" class="below-border-btn">[ hide information ]</button>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var SYMBOLS = ['△', '▽', '◇', '✦', '✧', '▲', '▼', '◆', '✕', '☆'];
+
+    function startGlitch(el, symbols, minMs, maxMs) {
+      if (!el) return;
+      var original = el.getAttribute('data-text') || el.textContent;
+      var letterIndexes = [];
+      for (var i = 0; i < original.length; i++) {
+        if (/[a-z]/i.test(original[i])) letterIndexes.push(i);
+      }
+      if (!letterIndexes.length) return;
+
+      function tick() {
+        var idx = letterIndexes[Math.floor(Math.random() * letterIndexes.length)];
+        var symbol = symbols[Math.floor(Math.random() * symbols.length)];
+        el.textContent = original.slice(0, idx) + symbol + original.slice(idx + 1);
+        setTimeout(function () { el.textContent = original; }, 350);
+        setTimeout(tick, minMs + Math.random() * (maxMs - minMs));
+      }
+      setTimeout(tick, minMs + Math.random() * (maxMs - minMs));
+    }
+
+    startGlitch(document.getElementById('glitch-logo'), ['△'], 2000, 2000);
+    startGlitch(document.getElementById('glitch-tagline'), SYMBOLS, 4000, 4000);
+    startGlitch(document.getElementById('glitch-who'), SYMBOLS, 4000, 9000);
+    startGlitch(document.getElementById('glitch-links'), SYMBOLS, 4000, 9000);
+    startGlitch(document.getElementById('glitch-view-projects'), SYMBOLS, 4000, 9000);
+    startGlitch(document.getElementById('glitch-view-posts'), SYMBOLS, 4000, 9000);
+  })();
+  </script>
+
+  <script>
+  (function () {
+    var el = document.getElementById('ascii-skyline');
+    if (!el) return;
+
+    var seedInput = document.getElementById('seed-input');
+    var btnCreateWorld = document.getElementById('btn-create-world');
+    var btnWorld = document.getElementById('btn-world');
+    var btnPlanet = document.getElementById('btn-planet');
+
+    var SEED_KEY = 'kinifi-world-seed';
+    var START_KEY = 'kinifi-world-start';
+    var MODE_KEY = 'kinifi-world-mode';
+    var GROW_MS = 10 * 60000; // world & planet both grow on a 10 minute tick
+
+    function randomSeed() {
+      return Math.random().toString(36).slice(2, 10);
+    }
+
+    var seed = localStorage.getItem(SEED_KEY) || randomSeed();
+    localStorage.setItem(SEED_KEY, seed);
+    if (seedInput) seedInput.value = seed;
+
+    var start = parseInt(localStorage.getItem(START_KEY), 10);
+    if (!start) {
+      start = Date.now();
+      localStorage.setItem(START_KEY, start);
+    }
+
+    var mode = localStorage.getItem(MODE_KEY) || 'world';
+
+    // deterministic PRNG so the same seed always draws the same world/planet
+    function mulberry32(a) {
+      return function () {
+        a |= 0; a = (a + 0x6D2B79F5) | 0;
+        var t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    function hashSeed(str) {
+      var h = 1779033703 ^ str.length;
+      for (var i = 0; i < str.length; i++) {
+        h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+        h = (h << 13) | (h >>> 19);
+      }
+      return (h ^ (h >>> 16)) >>> 0;
+    }
+
+    function growthLevel(maxLevel) {
+      var elapsedTicks = Math.floor((Date.now() - start) / GROW_MS);
+      return Math.min(maxLevel, elapsedTicks + 1);
+    }
+
+    function updateModeButtons() {
+      if (btnWorld) btnWorld.classList.toggle('active', mode === 'world');
+      if (btnPlanet) btnPlanet.classList.toggle('active', mode === 'planet');
+    }
+
+    // ---- world: trees, flowers, people, houses ------------------------
+
+    function treeArt(h) {
+      var rows = [];
+      for (var r = 0; r < h; r++) {
+        var w = Math.min(2 * r + 1, 9);
+        var pad = Math.floor((9 - w) / 2);
+        rows.push(' '.repeat(pad) + '^'.repeat(w));
+      }
+      rows.push('    |    ');
+      return rows.reverse().join('\n');
+    }
+
+    function flowerArt(h, rand) {
+      var rows = [];
+      for (var r = 0; r < h - 1; r++) rows.push('    |    ');
+      var bloom = h >= 3 ? '*@*' : h >= 2 ? '.@.' : ' . ';
+      rows.push('   ' + bloom + '   ');
+      return rows.reverse().join('\n');
+    }
+
+    function personArt() {
+      return ' o \n/|\\\n/ \\';
+    }
+
+    function houseArt(h) {
+      var rows = [];
+      for (var r = 0; r < h; r++) {
+        rows.push(r === 0 ? ' ______ ' : '|' + (Math.random() < 0.5 ? '[]' : '..') + '|' + (Math.random() < 0.5 ? '[]' : '..') + '|');
+      }
+      return rows.reverse().join('\n');
+    }
+
+    function renderWorld(rand) {
+      var maxLevel = Math.max(6, Math.floor((window.innerHeight * 0.4) / 14));
+      var level = growthLevel(maxLevel);
+
+      el.innerHTML = '';
+      el.className = 'ascii-skyline';
+
+      var COLS = 40;
+      for (var i = 0; i < COLS; i++) {
+        var roll = rand();
+        var type = roll < 0.3 ? 'tree' : roll < 0.5 ? 'flower' : roll < 0.62 ? 'person' : 'house';
+        var offset = Math.floor(rand() * 3);
+        var h = Math.max(1, Math.min(level + offset, maxLevel));
+
+        var wrap = document.createElement('div');
+        wrap.className = 'skyline-col skyline-' + type;
+
+        if (type === 'house' && level > maxLevel * 0.5 && rand() < 0.35) {
+          // grown enough that a second house appears on the same lot
+          var pair = document.createElement('div');
+          pair.className = 'house-pair';
+          var h1 = document.createElement('pre'); h1.textContent = houseArt(h);
+          var h2 = document.createElement('pre'); h2.textContent = houseArt(Math.max(1, h - 1));
+          pair.appendChild(h1); pair.appendChild(h2);
+          wrap.appendChild(pair);
+        } else {
+          var pre = document.createElement('pre');
+          if (type === 'tree') pre.textContent = treeArt(h);
+          else if (type === 'flower') pre.textContent = flowerArt(h, rand);
+          else if (type === 'person') pre.textContent = personArt();
+          else pre.textContent = houseArt(h);
+          wrap.appendChild(pre);
+        }
+        el.appendChild(wrap);
+      }
+    }
+
+    // ---- planet ---------------------------------------------------------
+
+    function renderPlanet(rand) {
+      var maxLevel = 16;
+      var level = growthLevel(maxLevel);
+      var radius = 3 + level;
+      var noiseSeed = rand() * 1000;
+
+      // a handful of landmass blobs, placed & sized from the seed
+      var landCount = 3 + Math.floor(rand() * 4);
+      var lands = [];
+      for (var i = 0; i < landCount; i++) {
+        var a = rand() * Math.PI * 2;
+        var d = rand() * radius * 0.65;
+        lands.push({
+          x: Math.cos(a) * d,
+          y: Math.sin(a) * d,
+          r: radius * (0.22 + rand() * 0.28)
+        });
+      }
+
+      el.innerHTML = '';
+      el.className = 'ascii-skyline ascii-planet';
+
+      var wrap = document.createElement('div');
+      wrap.className = 'planet-wrap';
+
+      var pre = document.createElement('pre');
+      pre.className = 'planet-art';
+
+      for (var y = -radius; y <= radius; y++) {
+        var currentType = null;
+        var buf = '';
+        for (var x = -radius * 2; x <= radius * 2; x++) {
+          var nx = x / 2;
+          var dist = Math.sqrt(nx * nx + y * y);
+          var type, ch;
+          if (dist > radius) {
+            type = 'space';
+            ch = ' ';
+          } else {
+            var edge = radius - dist;
+            var n = Math.abs(Math.sin(x * 12.9898 + y * 78.233 + noiseSeed)) % 1;
+            if (edge < 0.5) {
+              type = 'rim';
+              ch = '.';
+            } else {
+              var isLand = false;
+              for (var li = 0; li < lands.length; li++) {
+                var L = lands[li];
+                var dx = nx - L.x, dy = y - L.y;
+                if (Math.sqrt(dx * dx + dy * dy) < L.r) { isLand = true; break; }
+              }
+              if (isLand) {
+                type = 'land';
+                ch = n < 0.3 ? '^' : n < 0.65 ? '#' : '@';
+              } else {
+                type = 'water';
+                ch = n < 0.5 ? '~' : '≈';
+              }
+            }
+          }
+          if (type !== currentType) {
+            if (buf) {
+              var span = document.createElement('span');
+              span.className = 'planet-' + currentType;
+              span.textContent = buf;
+              pre.appendChild(span);
+            }
+            currentType = type;
+            buf = '';
+          }
+          buf += ch;
+        }
+        if (buf) {
+          var lastSpan = document.createElement('span');
+          lastSpan.className = 'planet-' + currentType;
+          lastSpan.textContent = buf;
+          pre.appendChild(lastSpan);
+        }
+        pre.appendChild(document.createTextNode('\n'));
+      }
+
+      wrap.appendChild(pre);
+
+      var moonCount = Math.floor(rand() * 5); // 0-4, deterministic per seed
+      for (var m = 0; m < moonCount; m++) {
+        var moonRadius = 1 + Math.floor(rand() * 2);
+        var moon = document.createElement('pre');
+        moon.className = 'moon-art';
+        moon.textContent = moonArt(moonRadius);
+        var angle = rand() * Math.PI * 2;
+        var orbitDist = 60 + rand() * 30;
+        moon.style.left = (50 + Math.cos(angle) * orbitDist) + '%';
+        moon.style.top = (50 + Math.sin(angle) * orbitDist * 0.6) + '%';
+        wrap.appendChild(moon);
+      }
+
+      el.appendChild(wrap);
+    }
+
+    function moonArt(radius) {
+      var shades = ['@', 'o', '.'];
+      var lines = [];
+      for (var y = -radius; y <= radius; y++) {
+        var line = '';
+        for (var x = -radius * 2; x <= radius * 2; x++) {
+          var nx = x / 2;
+          var dist = Math.sqrt(nx * nx + y * y);
+          if (dist > radius) { line += ' '; continue; }
+          var edge = radius - dist;
+          line += edge < 0.5 ? shades[2] : edge < 1 ? shades[1] : shades[0];
+        }
+        lines.push(line);
+      }
+      return lines.join('\n');
+    }
+
+    function render() {
+      var rand = mulberry32(hashSeed(seed));
+      updateModeButtons();
+      if (mode === 'planet') renderPlanet(rand);
+      else renderWorld(rand);
+    }
+
+    render();
+    setInterval(render, 60000);
+    window.addEventListener('resize', render);
+
+    function applySeed() {
+      seed = (seedInput && seedInput.value.trim()) || randomSeed();
+      localStorage.setItem(SEED_KEY, seed);
+      if (seedInput) seedInput.value = seed;
+
+      // a new seed grows its own world from scratch
+      start = Date.now();
+      localStorage.setItem(START_KEY, start);
+
+      render();
+    }
+
+    if (seedInput) {
+      seedInput.addEventListener('change', applySeed);
+    }
+    if (btnCreateWorld) {
+      btnCreateWorld.addEventListener('click', applySeed);
+    }
+    if (btnWorld) btnWorld.addEventListener('click', function () {
+      mode = 'world';
+      localStorage.setItem(MODE_KEY, mode);
+      render();
+    });
+    if (btnPlanet) btnPlanet.addEventListener('click', function () {
+      mode = 'planet';
+      localStorage.setItem(MODE_KEY, mode);
+      render();
+    });
+  })();
+  </script>
+
+  <script>
+  (function () {
+    var frame = document.querySelector('.frame');
+    if (!frame) return;
+
+    var CHARS = ['=', '+', '.', '*', '#', '~', 'x', '0'];
+    function randChar() { return CHARS[Math.floor(Math.random() * CHARS.length)]; }
+    function randRow(n) {
+      var s = '';
+      for (var i = 0; i < n; i++) s += randChar();
+      return s;
+    }
+
+    function build() {
+      frame.querySelectorAll('.ascii-border').forEach(function (n) { n.remove(); });
+
+      var rect = frame.getBoundingClientRect();
+      var hCount = Math.ceil(rect.width / 8) + 4;
+      var vCount = Math.ceil(rect.height / 12) + 2;
+
+      var top = document.createElement('div');
+      top.className = 'ascii-border ascii-border-h ascii-border-top';
+      top.setAttribute('aria-hidden', 'true');
+      top.textContent = randRow(hCount);
+
+      var bottom = document.createElement('div');
+      bottom.className = 'ascii-border ascii-border-h ascii-border-bottom';
+      bottom.setAttribute('aria-hidden', 'true');
+      bottom.textContent = randRow(hCount);
+
+      var left = document.createElement('div');
+      left.className = 'ascii-border ascii-border-v ascii-border-left';
+      left.setAttribute('aria-hidden', 'true');
+      var leftChars = [];
+      for (var i = 0; i < vCount; i++) leftChars.push(randChar());
+      left.textContent = leftChars.join('\n');
+
+      var right = document.createElement('div');
+      right.className = 'ascii-border ascii-border-v ascii-border-right';
+      right.setAttribute('aria-hidden', 'true');
+      var rightChars = [];
+      for (var j = 0; j < vCount; j++) rightChars.push(randChar());
+      right.textContent = rightChars.join('\n');
+
+      frame.appendChild(top);
+      frame.appendChild(bottom);
+      frame.appendChild(left);
+      frame.appendChild(right);
+    }
+
+    build();
+    window.addEventListener('resize', build);
+  })();
+  </script>
+
+  <script>
+  (function () {
+    var frame = document.querySelector('.frame');
+    if (!frame) return;
+
+    var CHARS = ['.', '*', '+', '✦', '✧', '·'];
+    var COLORS = ['var(--ink)', 'var(--cyan)', 'var(--green)', 'var(--yellow)'];
+    var COUNT = 50;
+
+    for (var i = 0; i < COUNT; i++) {
+      var star = document.createElement('span');
+      star.className = 'star';
+      star.setAttribute('aria-hidden', 'true');
+      star.textContent = CHARS[Math.floor(Math.random() * CHARS.length)];
+      star.style.top = (Math.random() * 96).toFixed(2) + '%';
+      star.style.left = (Math.random() * 98).toFixed(2) + '%';
+      star.style.fontSize = (8 + Math.random() * 9).toFixed(1) + 'px';
+      star.style.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+      star.style.opacity = (0.4 + Math.random() * 0.6).toFixed(2);
+      frame.appendChild(star);
+    }
+  })();
+  </script>
+
+  <script>
+  (function () {
+    var btn = document.getElementById('toggle-info');
+    var grid = document.getElementById('content-grid');
+    if (!btn || !grid) return;
+
+    btn.addEventListener('click', function () {
+      var hidden = grid.style.visibility === 'hidden';
+      grid.style.visibility = hidden ? '' : 'hidden';
+      btn.textContent = hidden ? '[ hide information ]' : '[ show information ]';
+    });
+  })();
+  </script>
+</body>
+</html>
