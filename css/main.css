@@ -2,7 +2,13 @@
    kinifi.github.io — neon terminal / ascii theme
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&family=VT323&display=swap');
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/assets/fonts/IBMPlexMono-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   --bg:        #030503;
@@ -36,7 +42,8 @@ html, body {
 }
 
 body {
-  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 300; /* only the Light face is loaded, so pin the weight everywhere to avoid faux-bold */
   font-size: 13.6px; /* 17px - 20% */
   line-height: 1.55;
   position: relative;
@@ -76,7 +83,7 @@ body {
 .moon-art {
   position: absolute;
   margin: 0;
-  font-family: 'Share Tech Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 8px;
   line-height: 8px;
   color: var(--ink);
@@ -86,7 +93,7 @@ body {
 
 .skyline-col {
   margin: 0;
-  font-family: 'Share Tech Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 10px;
   line-height: 14px;
 }
@@ -107,7 +114,7 @@ body {
 
 .planet-art {
   margin: 0;
-  font-family: 'Share Tech Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 8px;
   line-height: 8px;
   white-space: pre;
@@ -120,7 +127,7 @@ body {
 .star {
   position: absolute;
   z-index: 0;
-  font-family: 'Share Tech Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   line-height: 1;
   pointer-events: none;
   text-shadow: 0 0 4px currentColor, 0 0 8px currentColor;
@@ -174,7 +181,7 @@ a:hover { text-decoration: underline; }
 .ascii-border {
   position: absolute;
   color: var(--green);
-  font-family: 'Share Tech Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 11px;
   line-height: 12px;
   letter-spacing: 1px;
@@ -212,8 +219,8 @@ a:hover { text-decoration: underline; }
 }
 
 .logo {
-  font-family: 'VT323', 'Share Tech Mono', monospace;
-  font-weight: 400;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 300;
   font-size: clamp(3.2rem, 10vw, 6rem);
   color: var(--blue);
   text-shadow: var(--glow);
@@ -226,7 +233,7 @@ a:hover { text-decoration: underline; }
 .tagline {
   display: inline-block;
   margin-top: 10px;
-  font-family: 'Share Tech Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 0.85rem;
   color: var(--cyan);
   border: 1px solid var(--cyan);
@@ -250,14 +257,16 @@ a:hover { text-decoration: underline; }
 }
 
 h1 {
-  font-family: 'Press Start 2P', monospace;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 300;
   font-size: 1.4rem;
   color: var(--green);
   margin: 0 0 20px;
 }
 
 h2 {
-  font-family: 'Press Start 2P', monospace;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 300;
   font-size: 1rem;
   color: var(--yellow);
   margin: 28px 0 14px;
@@ -285,7 +294,7 @@ p, li { color: var(--ink); }
   background: #050805;
   border: 2px solid var(--c);
   color: var(--c);
-  font-family: 'Press Start 2P', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 0.62rem;
   padding: 4px 10px;
   text-transform: lowercase;
@@ -317,6 +326,14 @@ p, li { color: var(--ink); }
   flex: 1;
   margin-top: 0;
 }
+
+/* home page boxes (who is this / links / latest projects / latest posts):
+   text 30% bigger than the site-wide defaults used elsewhere */
+#content-grid .tab { font-size: 0.806rem; }
+#content-grid p,
+#content-grid ul.plain li,
+#content-grid ul.links li a { font-size: 0.91em; } /* 1.3em - 30% */
+#content-grid ul.posts li { font-size: 0.91rem; } /* 1.3rem - 30% */
 
 /* ---- lists ---------------------------------------------------------------*/
 
@@ -352,7 +369,7 @@ ul.posts li a:hover { color: var(--green); }
 .post img { max-width: 100%; }
 .post ul li::marker { color: var(--c, var(--green)); }
 .post pre, .post code {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   background: #050e08;
   border: 1px solid var(--green-dim);
   color: var(--green);
@@ -372,7 +389,7 @@ ul.posts li a:hover { color: var(--green); }
   background: #050e08;
   border: 2px solid var(--green);
   color: var(--green);
-  font-family: 'Share Tech Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 1.1rem;
   padding: 10px 12px;
 }
@@ -399,8 +416,8 @@ nav.crt-nav {
   padding: 14px 12px;
 }
 nav.crt-nav a {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.524rem; /* 0.68rem - 30%, then +10% */
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6812rem; /* 0.68rem - 30%, then +10%, then +30% */
   color: var(--green);
   background: #030503;
   border: 1px solid var(--green);
@@ -424,7 +441,7 @@ nav.crt-nav a.active {
   margin: 0 0 10px;
 }
 .below-border-btn {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 0.8rem;
   color: var(--muted);
   background: transparent;
@@ -450,7 +467,7 @@ nav.crt-nav a.active {
 }
 
 .seed-input {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 0.8rem;
   color: var(--ink);
   background: #050e08;
